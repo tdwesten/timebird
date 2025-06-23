@@ -1,8 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
 import { useMoneybirdStore } from "@/stores/moneybird";
-import { TimeEntry } from "@/api/moneybird";
+import { TimeEntry, fetchContacts, fetchProjects } from "@/api/moneybird";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
+
+// --- Add types for Contact and Project ---
+interface Contact {
+  id: string;
+  company_name: string;
+}
+interface Project {
+  id: string;
+  name: string;
+}
 
 export function NewTimeEntryForm() {
   const { addTimeEntry, apiToken, administrationId } = useMoneybirdStore();
@@ -17,13 +29,18 @@ export function NewTimeEntryForm() {
     return now.toTimeString().substring(0, 5); // Format: HH:MM
   });
   const [endDate, setEndDate] = useState("");
-  const [endTime, setEndTime] = useState(() => {
-    const now = new Date();
-    return now.toTimeString().substring(0, 5); // Format: HH:MM
-  });
+  const [endTime, setEndTime] = useState<null | string>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDateSelectors, setShowDateSelectors] = useState(false);
+  const [timerActive, setTimerActive] = useState(false);
+  const [timerStart, setTimerStart] = useState<Date | null>(null);
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+
+  // --- Add state for contacts and projects ---
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
 
   const resetForm = () => {
     setDescription("");
@@ -37,7 +54,7 @@ export function NewTimeEntryForm() {
     const currentTime = now.toTimeString().substring(0, 5); // Format: HH:MM
     setStartTime(currentTime);
     setEndDate("");
-    setEndTime(currentTime);
+    setEndTime(null);
     setError(null);
   };
 
@@ -94,7 +111,7 @@ export function NewTimeEntryForm() {
         description,
         contact: {
           id: contactId,
-          name: contactName,
+          company_name: contactName,
         },
         project: {
           id: projectId,
@@ -121,6 +138,82 @@ export function NewTimeEntryForm() {
   // Check if API is configured
   const isApiConfigured = Boolean(apiToken && administrationId);
 
+  // --- Fetch contacts and projects from API ---
+  useEffect(() => {
+    async function loadOptions() {
+      if (!apiToken || !administrationId) return;
+      setLoadingOptions(true);
+      try {
+        const [contactsData, projectsData] = await Promise.all([
+          fetchContacts(apiToken, administrationId),
+          fetchProjects(apiToken, administrationId),
+        ]);
+        setContacts(contactsData);
+        setProjects(projectsData);
+      } catch (e) {
+        // Optionally handle error
+      } finally {
+        setLoadingOptions(false);
+      }
+    }
+    loadOptions();
+  }, [apiToken, administrationId]);
+
+  // Timer logic
+  useEffect(() => {
+    if (timerActive && !timerInterval) {
+      setTimerStart(new Date());
+      setEndTime("");
+      const interval = setInterval(() => {
+        const now = new Date();
+        setEndTime(now.toTimeString().substring(0, 5));
+      }, 1000);
+      setTimerInterval(interval);
+    } else if (!timerActive && timerInterval) {
+      clearInterval(timerInterval);
+      setTimerInterval(null);
+    }
+    return () => {
+      if (timerInterval) clearInterval(timerInterval);
+    };
+  }, [timerActive]);
+
+  const handleTimerClick = async () => {
+    if (!timerActive) {
+      // Start timer
+      setTimerActive(true);
+      setTimerStart(new Date());
+      setEndTime("");
+    } else {
+      // Stop timer and save entry
+      setTimerActive(false);
+      if (!description || !contactId || !contactName || !projectId || !projectName || !startTime) {
+        setError("All fields are required");
+        return;
+      }
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      const startedAt = showDateSelectors && startDate ? new Date(`${startDate}T${startTime}`).toISOString() : new Date(`${today}T${startTime}`).toISOString();
+      const endedAt = now.toISOString();
+      const newEntry: Omit<TimeEntry, "id"> = {
+        description,
+        contact: {
+          id: contactId,
+          company_name: contactName,
+        },
+        project: {
+          id: projectId,
+          name: projectName,
+        },
+        started_at: startedAt,
+        ended_at: endedAt,
+        time: "",
+      };
+      await addTimeEntry(newEntry);
+      resetForm();
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {!isApiConfigured && (
@@ -139,76 +232,83 @@ export function NewTimeEntryForm() {
         <Label htmlFor="description" className="text-sm font-medium">
           Description
         </Label>
-        <input
+        <Input
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-2 border rounded"
           placeholder="What did you work on?"
           disabled={!isApiConfigured || isSubmitting}
+          autoFocus
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 relative">
           <Label htmlFor="contactId" className="text-sm font-medium">
-            Contact ID
+            Contact
           </Label>
-          <input
-            id="contactId"
+          <Combobox
+            options={contacts.map((c) => ({ value: c.id, label: c.company_name }))}
             value={contactId}
-            onChange={(e) => setContactId(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="Contact ID"
-            disabled={!isApiConfigured || isSubmitting}
+            onChange={(opt) => {
+              setContactId(opt.value);
+              setContactName(opt.label);
+            }}
+            placeholder={loadingOptions ? "Loading..." : "Select contact"}
+            disabled={!isApiConfigured || isSubmitting || loadingOptions}
+            inputId="contactId"
+            className="w-full"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="contactName" className="text-sm font-medium">
-            Contact Name
+          <Label htmlFor="projectId" className="text-sm font-medium">
+            Project
           </Label>
-          <input
-            id="contactName"
-            value={contactName}
-            onChange={(e) => setContactName(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="Contact Name"
-            disabled={!isApiConfigured || isSubmitting}
+          <Combobox
+            options={projects.map((p) => ({ value: p.id, label: p.name }))}
+            value={projectId}
+            onChange={(opt) => {
+              setProjectId(opt.value);
+              setProjectName(opt.label);
+            }}
+            placeholder={loadingOptions ? "Loading..." : "Select project"}
+            disabled={!isApiConfigured || isSubmitting || loadingOptions}
+            inputId="projectId"
+            className="w-full"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="projectId" className="text-sm font-medium">
-            Project ID
+          <Label htmlFor="startTime" className="text-sm font-medium">
+            Start Time
           </Label>
-          <input
-            id="projectId"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="Project ID"
+          <Input
+            id="startTime"
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
             disabled={!isApiConfigured || isSubmitting}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="projectName" className="text-sm font-medium">
-            Project Name
+          <Label htmlFor="endTime" className="text-sm font-medium">
+            End Time
           </Label>
-          <input
-            id="projectName"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            className="w-full p-2 border rounded"
-            placeholder="Project Name"
+          <Input
+            id="endTime"
+            type="time"
+            placeholder={"00:00"}
+            value={endTime ?? ""}
+            onChange={(e) => setEndTime(e.target.value)}
             disabled={!isApiConfigured || isSubmitting}
           />
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <input
+      <div className="flex items-center space-x-2 mt-2">
+        <Input
           type="checkbox"
           id="showDateSelectors"
           checked={showDateSelectors}
@@ -221,13 +321,13 @@ export function NewTimeEntryForm() {
         </Label>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {showDateSelectors && (
+      {showDateSelectors && (
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="startDate" className="text-sm font-medium">
               Start Date
             </Label>
-            <input
+            <Input
               id="startDate"
               type="date"
               value={startDate}
@@ -236,24 +336,6 @@ export function NewTimeEntryForm() {
               disabled={!isApiConfigured || isSubmitting}
             />
           </div>
-        )}
-        <div className="space-y-2">
-          <Label htmlFor="startTime" className="text-sm font-medium">
-            Start Time
-          </Label>
-          <input
-            id="startTime"
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            className="w-full p-2 border rounded"
-            disabled={!isApiConfigured || isSubmitting}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        {showDateSelectors && (
           <div className="space-y-2">
             <Label htmlFor="endDate" className="text-sm font-medium">
               End Date
@@ -267,36 +349,16 @@ export function NewTimeEntryForm() {
               disabled={!isApiConfigured || isSubmitting}
             />
           </div>
-        )}
-        <div className="space-y-2">
-          <Label htmlFor="endTime" className="text-sm font-medium">
-            End Time
-          </Label>
-          <input
-            id="endTime"
-            type="time"
-            value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
-            className="w-full p-2 border rounded"
-            disabled={!isApiConfigured || isSubmitting}
-          />
         </div>
-      </div>
+      )}
 
       <div className="flex justify-end gap-2 pt-4">
         <Button 
-          type="button" 
-          variant="outline" 
-          onClick={resetForm}
+          type="button"
+          onClick={handleTimerClick}
           disabled={!isApiConfigured || isSubmitting}
         >
-          Reset
-        </Button>
-        <Button 
-          type="submit"
-          disabled={!isApiConfigured || isSubmitting}
-        >
-          {isSubmitting ? "Saving..." : "Save"}
+          {timerActive ? "Stop Timer" : "Start Timer"}
         </Button>
       </div>
     </form>

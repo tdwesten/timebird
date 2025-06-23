@@ -244,3 +244,61 @@ function calculateTimeSpent(startedAt: string, endedAt: string): string {
 
   return `${diffHours}:${diffMinutes.toString().padStart(2, '0')}`;
 }
+
+// --- Fetch contacts from Moneybird API ---
+export async function fetchContacts(apiToken?: string, administrationId?: string): Promise<{ id: string; company_name: string }[]> {
+  if (!apiToken || !administrationId) {
+    // Return mock contacts if not configured
+    return [
+      { id: "contact-1", company_name: "Client 1" },
+      { id: "contact-2", company_name: "Client 2" },
+      { id: "contact-3", company_name: "Client 3" },
+    ];
+  }
+  try {
+    const response = await fetch(
+      `${MONEYBIRD_API_BASE_URL}/${administrationId}/contacts`,
+      {
+        method: 'GET',
+        headers: createHeaders(apiToken),
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch contacts: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.map((c: any) => ({ id: c.id, company_name: c.company_name }));
+  } catch (error) {
+    console.error('Error fetching contacts:', error);
+    throw error;
+  }
+}
+
+// --- Fetch projects from Moneybird API ---
+export async function fetchProjects(apiToken?: string, administrationId?: string): Promise<{ id: string; name: string }[]> {
+  if (!apiToken || !administrationId) {
+    // Return mock projects if not configured
+    return [
+      { id: "project-1", name: "Project 1" },
+      { id: "project-2", name: "Project 2" },
+      { id: "project-3", name: "Project 3" },
+    ];
+  }
+  try {
+    const response = await fetch(
+      `${MONEYBIRD_API_BASE_URL}/${administrationId}/projects`,
+      {
+        method: 'GET',
+        headers: createHeaders(apiToken),
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch projects: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.map((p: any) => ({ id: p.id, name: p.name }));
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    throw error;
+  }
+}

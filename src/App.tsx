@@ -11,7 +11,6 @@ function App() {
   // Initialize the store when the app loads
   useEffect(() => {
     if (!initialized) {
-    console.log("App initialized");
       initialize();
     }
   }, [initialize, initialized]);
@@ -19,7 +18,7 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen">
       <Topbar />
-      <main className="container mx-auto py-6 px-4 flex-1">
+      <main className="container mx-auto py-6 px-4 flex-1 overflow-y-scroll h-screen">
         <div className="rounded-md border p-4 mb-6">
           <h2 className="text-lg font-semibold mb-4">New Time Entry</h2>
           <NewTimeEntryForm />
