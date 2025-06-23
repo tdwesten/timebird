@@ -1,14 +1,16 @@
-import { useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { TimeEntriesTable } from "./components/TimeEntriesTable";
+import { Topbar } from "./components/Topbar";
 
 function App() {
   return (
-    <main className="container mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold mb-6">Moneybird Time Entries</h1>
-      <TimeEntriesTable />
-    </main>
+    <div className="flex flex-col min-h-screen">
+      <Topbar />
+      <main className="container mx-auto py-6 px-4 flex-1">
+        <h1 className="text-2xl font-bold mb-6">Moneybird Time Entries</h1>
+        <TimeEntriesTable />
+      </main>
+    </div>
   );
 }
 
