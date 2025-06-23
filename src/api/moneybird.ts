@@ -137,12 +137,14 @@ export async function createTimeEntry(
         body: JSON.stringify(requestData),
       }
     );
+    const data = await response.json();
+    console.log(data);
 
     if (!response.ok) {
       throw new Error(`Failed to create time entry: ${response.statusText}`);
     }
 
-    const data = await response.json();
+
 
     // Transform the API response to match our TimeEntry interface
     return {

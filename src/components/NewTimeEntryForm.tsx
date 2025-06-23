@@ -15,6 +15,10 @@ interface Project {
   id: string;
   name: string;
 }
+interface User {
+  id: string;
+  name: string;
+}
 
 export function NewTimeEntryForm() {
   const { addTimeEntry, apiToken, administrationId } = useMoneybirdStore();
@@ -23,6 +27,8 @@ export function NewTimeEntryForm() {
   const [contactName, setContactName] = useState("");
   const [projectId, setProjectId] = useState("");
   const [projectName, setProjectName] = useState("");
+  const [userId, setUserId] = useState("");
+  const [userName, setUserName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState(() => {
     const now = new Date();
@@ -40,6 +46,7 @@ export function NewTimeEntryForm() {
   // --- Add state for contacts and projects ---
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
 
   const resetForm = () => {
@@ -48,6 +55,8 @@ export function NewTimeEntryForm() {
     setContactName("");
     setProjectId("");
     setProjectName("");
+    setUserId("");
+    setUserName("");
     setStartDate("");
     // Reset time to current time
     const now = new Date();
@@ -74,6 +83,11 @@ export function NewTimeEntryForm() {
 
     if (!projectId || !projectName) {
       setError("Project information is required");
+      return;
+    }
+
+    if (!userId || !userName) {
+      setError("User is required");
       return;
     }
 
@@ -107,7 +121,7 @@ export function NewTimeEntryForm() {
       }
 
       // Create the time entry object
-      const newEntry: Omit<TimeEntry, "id"> = {
+      const newEntry: Omit<TimeEntry, "id"> & { user_id: string } = {
         description,
         contact: {
           id: contactId,
@@ -120,6 +134,7 @@ export function NewTimeEntryForm() {
         started_at: startedAt,
         ended_at: endedAt,
         time: "", // This will be calculated by the API
+        user_id: userId,
       };
 
       // Add the time entry
@@ -150,6 +165,10 @@ export function NewTimeEntryForm() {
         ]);
         setContacts(contactsData);
         setProjects(projectsData);
+        // Fetch users (mock for now)
+        setUsers([
+          { id: "1", name: "You" }
+        ]);
       } catch (e) {
         // Optionally handle error
       } finally {
@@ -195,7 +214,7 @@ export function NewTimeEntryForm() {
       const today = now.toISOString().split('T')[0];
       const startedAt = showDateSelectors && startDate ? new Date(`${startDate}T${startTime}`).toISOString() : new Date(`${today}T${startTime}`).toISOString();
       const endedAt = now.toISOString();
-      const newEntry: Omit<TimeEntry, "id"> = {
+      const newEntry: Omit<TimeEntry, "id"> & { user_id: string } = {
         description,
         contact: {
           id: contactId,
@@ -208,14 +227,25 @@ export function NewTimeEntryForm() {
         started_at: startedAt,
         ended_at: endedAt,
         time: "",
+        user_id: userId,
       };
-      await addTimeEntry(newEntry);
-      resetForm();
+      try {
+        await addTimeEntry(newEntry);
+        resetForm();
+      } catch (err) {
+        setError("Failed to create time entry. Please try again.");
+      }
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {timerActive && (
+        <div className="fixed left-0 top-0 w-full h-2 z-50">
+          <div className="h-full w-full bg-red-500 animate-pulse" />
+        </div>
+      )}
+
       {!isApiConfigured && (
         <div className="bg-amber-100 border border-amber-400 text-amber-700 px-4 py-3 rounded mb-4">
           Please configure your Moneybird API token and administration ID in the settings.
@@ -280,6 +310,23 @@ export function NewTimeEntryForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="userId" className="text-sm font-medium">
+            User
+          </Label>
+          <Combobox
+            options={users.map((u) => ({ value: u.id, label: u.name }))}
+            value={userId}
+            onChange={(opt) => {
+              setUserId(opt.value);
+              setUserName(opt.label);
+            }}
+            placeholder={loadingOptions ? "Loading..." : "Select user"}
+            disabled={!isApiConfigured || isSubmitting || loadingOptions}
+            inputId="userId"
+            className="w-full"
+          />
+        </div>
         <div className="space-y-2">
           <Label htmlFor="startTime" className="text-sm font-medium">
             Start Time
@@ -357,6 +404,7 @@ export function NewTimeEntryForm() {
           type="button"
           onClick={handleTimerClick}
           disabled={!isApiConfigured || isSubmitting}
+          className={timerActive ? "bg-red-500 hover:bg-red-600 text-white" : ""}
         >
           {timerActive ? "Stop Timer" : "Start Timer"}
         </Button>

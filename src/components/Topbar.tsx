@@ -3,10 +3,12 @@ import { SettingsDialog } from "./SettingsDialog";
 
 export function Topbar() {
   return (
-    <div className="flex justify-between items-center p-2 border-b sticky top-0 bg-white z-40">
+    <div className="flex justify-between items-center p-2 border-b sticky top-0 bg-white z-40 select-none rounded-t-xl" style={{ WebkitAppRegion: 'drag' }}>
       <Logo />
       <h1 className="text-xl font-semibold">TimeBird</h1>
-      <SettingsDialog />
+      <div style={{ WebkitAppRegion: 'no-drag' }}>
+        <SettingsDialog />
+      </div>
     </div>
   );
 }
