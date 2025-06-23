@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { fetchLastTimeEntries, type TimeEntry } from "@/api/moneybird";
+import { useEffect } from "react";
+import { type TimeEntry } from "@/api/moneybird";
+import { useMoneybirdStore } from "@/stores/moneybird";
 import {
   Table,
   TableBody,
@@ -11,34 +12,47 @@ import {
 } from "@/components/ui/table";
 
 export function TimeEntriesTable() {
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    timeEntries, 
+    isLoading, 
+    error, 
+    fetchTimeEntries, 
+    apiToken, 
+    administrationId 
+  } = useMoneybirdStore();
 
   useEffect(() => {
-    async function loadTimeEntries() {
-      try {
-        setLoading(true);
-        const entries = await fetchLastTimeEntries();
-        setTimeEntries(entries);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to fetch time entries:", err);
-        setError("Failed to load time entries. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
+    // Only fetch if we have API credentials
+    if (apiToken && administrationId) {
+      fetchTimeEntries();
     }
+  }, [fetchTimeEntries, apiToken, administrationId]);
 
-    loadTimeEntries();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return <div className="py-10 text-center">Loading time entries...</div>;
   }
 
   if (error) {
     return <div className="py-10 text-center text-red-500">{error}</div>;
+  }
+
+  if (!apiToken || !administrationId) {
+    return (
+      <div className="py-10 text-center">
+        <p className="text-amber-600 mb-2">API not configured</p>
+        <p className="text-gray-600">
+          Please configure your Moneybird API token and administration ID in the settings.
+        </p>
+      </div>
+    );
+  }
+
+  if (timeEntries.length === 0) {
+    return (
+      <div className="py-10 text-center text-gray-600">
+        No time entries found. Create your first entry using the "New Time Entry" button.
+      </div>
+    );
   }
 
   return (

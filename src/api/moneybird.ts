@@ -17,8 +17,10 @@ export interface TimeEntry {
   ended_at: string;
 }
 
-// Mock data for development purposes
-// In a real implementation, this would be replaced with actual API calls
+// Define the base URL for the Moneybird API
+const MONEYBIRD_API_BASE_URL = 'https://moneybird.com/api/v2';
+
+// Mock data for development or fallback when API is not configured
 const mockTimeEntries: TimeEntry[] = Array.from({ length: 20 }, (_, i) => ({
   id: `entry-${i + 1}`,
   description: `Time entry ${i + 1} description`,
@@ -36,16 +38,208 @@ const mockTimeEntries: TimeEntry[] = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 /**
+ * Helper function to create headers with the API token
+ */
+function createHeaders(apiToken: string): Headers {
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${apiToken}`);
+  headers.append('Content-Type', 'application/json');
+  return headers;
+}
+
+/**
  * Fetch the last 20 time entries from Moneybird
  * 
- * In a real implementation, this would make an actual API call to Moneybird
- * For now, we're using mock data
+ * @param apiToken The Moneybird API token
+ * @param administrationId The Moneybird administration ID
+ * @returns A promise that resolves to an array of time entries
  */
-export async function fetchLastTimeEntries(): Promise<TimeEntry[]> {
-  // Simulate API call delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Return mock data
-  // In a real implementation, this would fetch data from the Moneybird API
-  return mockTimeEntries;
+export async function fetchLastTimeEntries(apiToken?: string, administrationId?: string): Promise<TimeEntry[]> {
+  // If API token or administration ID is not provided, return mock data
+  if (!apiToken || !administrationId) {
+    console.warn('API token or administration ID not provided, returning mock data');
+    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+    return mockTimeEntries;
+  }
+
+  try {
+    const response = await fetch(
+      `${MONEYBIRD_API_BASE_URL}/${administrationId}/time_entries?per_page=20`,
+      {
+        method: 'GET',
+        headers: createHeaders(apiToken),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch time entries: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // Transform the API response to match our TimeEntry interface
+    return data.map((entry: any) => ({
+      id: entry.id,
+      description: entry.description,
+      time: calculateTimeSpent(entry.started_at, entry.ended_at),
+      contact: {
+        id: entry.contact_id || '',
+        name: entry.contact_name || 'Unknown Contact',
+      },
+      project: {
+        id: entry.project_id || '',
+        name: entry.project_name || 'Unknown Project',
+      },
+      started_at: entry.started_at,
+      ended_at: entry.ended_at,
+    }));
+  } catch (error) {
+    console.error('Error fetching time entries:', error);
+    throw error;
+  }
+}
+
+/**
+ * Create a new time entry in Moneybird
+ * 
+ * @param apiToken The Moneybird API token
+ * @param administrationId The Moneybird administration ID
+ * @param entry The time entry data to create
+ * @returns A promise that resolves to the created time entry
+ */
+export async function createTimeEntry(
+  apiToken: string,
+  administrationId: string,
+  entry: Omit<TimeEntry, 'id'>
+): Promise<TimeEntry> {
+  if (!apiToken || !administrationId) {
+    throw new Error('API token and administration ID are required');
+  }
+
+  try {
+    // Transform our TimeEntry interface to match the Moneybird API format
+    const requestData = {
+      time_entry: {
+        description: entry.description,
+        started_at: entry.started_at,
+        ended_at: entry.ended_at,
+        contact_id: entry.contact.id,
+        project_id: entry.project.id,
+      },
+    };
+
+    const response = await fetch(
+      `${MONEYBIRD_API_BASE_URL}/${administrationId}/time_entries`,
+      {
+        method: 'POST',
+        headers: createHeaders(apiToken),
+        body: JSON.stringify(requestData),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to create time entry: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // Transform the API response to match our TimeEntry interface
+    return {
+      id: data.id,
+      description: data.description,
+      time: calculateTimeSpent(data.started_at, data.ended_at),
+      contact: {
+        id: data.contact_id || '',
+        name: data.contact_name || 'Unknown Contact',
+      },
+      project: {
+        id: data.project_id || '',
+        name: data.project_name || 'Unknown Project',
+      },
+      started_at: data.started_at,
+      ended_at: data.ended_at,
+    };
+  } catch (error) {
+    console.error('Error creating time entry:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update an existing time entry in Moneybird
+ * 
+ * @param apiToken The Moneybird API token
+ * @param administrationId The Moneybird administration ID
+ * @param id The ID of the time entry to update
+ * @param entry The time entry data to update
+ * @returns A promise that resolves to the updated time entry
+ */
+export async function updateTimeEntry(
+  apiToken: string,
+  administrationId: string,
+  id: string,
+  entry: Partial<TimeEntry>
+): Promise<TimeEntry> {
+  if (!apiToken || !administrationId) {
+    throw new Error('API token and administration ID are required');
+  }
+
+  try {
+    // Transform our TimeEntry interface to match the Moneybird API format
+    const requestData: any = { time_entry: {} };
+
+    if (entry.description) requestData.time_entry.description = entry.description;
+    if (entry.started_at) requestData.time_entry.started_at = entry.started_at;
+    if (entry.ended_at) requestData.time_entry.ended_at = entry.ended_at;
+    if (entry.contact?.id) requestData.time_entry.contact_id = entry.contact.id;
+    if (entry.project?.id) requestData.time_entry.project_id = entry.project.id;
+
+    const response = await fetch(
+      `${MONEYBIRD_API_BASE_URL}/${administrationId}/time_entries/${id}`,
+      {
+        method: 'PATCH',
+        headers: createHeaders(apiToken),
+        body: JSON.stringify(requestData),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to update time entry: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    // Transform the API response to match our TimeEntry interface
+    return {
+      id: data.id,
+      description: data.description,
+      time: calculateTimeSpent(data.started_at, data.ended_at),
+      contact: {
+        id: data.contact_id || '',
+        name: data.contact_name || 'Unknown Contact',
+      },
+      project: {
+        id: data.project_id || '',
+        name: data.project_name || 'Unknown Project',
+      },
+      started_at: data.started_at,
+      ended_at: data.ended_at,
+    };
+  } catch (error) {
+    console.error('Error updating time entry:', error);
+    throw error;
+  }
+}
+
+/**
+ * Helper function to calculate the time spent between two dates
+ */
+function calculateTimeSpent(startedAt: string, endedAt: string): string {
+  const start = new Date(startedAt);
+  const end = new Date(endedAt);
+  const diffMs = end.getTime() - start.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  return `${diffHours}:${diffMinutes.toString().padStart(2, '0')}`;
 }
