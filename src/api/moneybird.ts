@@ -1,4 +1,5 @@
 // Moneybird API integration
+import { fetch } from '@tauri-apps/plugin-http';
 
 // Define types for Moneybird time entries
 export interface TimeEntry {
@@ -7,7 +8,7 @@ export interface TimeEntry {
   time: string; // Duration or time spent
   contact: {
     id: string;
-    name: string;
+    company_name: string;
   };
   project: {
     id: string;
@@ -27,7 +28,7 @@ const mockTimeEntries: TimeEntry[] = Array.from({ length: 20 }, (_, i) => ({
   time: `${Math.floor(Math.random() * 8) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
   contact: {
     id: `contact-${Math.floor(Math.random() * 5) + 1}`,
-    name: `Client ${Math.floor(Math.random() * 5) + 1}`,
+    company_name: `Client ${Math.floor(Math.random() * 5) + 1}`,
   },
   project: {
     id: `project-${Math.floor(Math.random() * 3) + 1}`,
@@ -84,11 +85,11 @@ export async function fetchLastTimeEntries(apiToken?: string, administrationId?:
       time: calculateTimeSpent(entry.started_at, entry.ended_at),
       contact: {
         id: entry.contact_id || '',
-        name: entry.contact_name || 'Unknown Contact',
+        company_name: entry.contact.company_name || 'Unknown Contact',
       },
       project: {
         id: entry.project_id || '',
-        name: entry.project_name || 'Unknown Project',
+        name: entry.project.name || 'Unknown Project',
       },
       started_at: entry.started_at,
       ended_at: entry.ended_at,
@@ -150,7 +151,7 @@ export async function createTimeEntry(
       time: calculateTimeSpent(data.started_at, data.ended_at),
       contact: {
         id: data.contact_id || '',
-        name: data.contact_name || 'Unknown Contact',
+        company_name: data.contact_name || 'Unknown Contact',
       },
       project: {
         id: data.project_id || '',
@@ -216,7 +217,7 @@ export async function updateTimeEntry(
       time: calculateTimeSpent(data.started_at, data.ended_at),
       contact: {
         id: data.contact_id || '',
-        name: data.contact_name || 'Unknown Contact',
+        company_name: data.contact_name || 'Unknown Contact',
       },
       project: {
         id: data.project_id || '',

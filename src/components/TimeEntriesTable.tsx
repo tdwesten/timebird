@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { type TimeEntry } from "@/api/moneybird";
 import { useMoneybirdStore } from "@/stores/moneybird";
 import {
   Table,
@@ -72,7 +71,7 @@ export function TimeEntriesTable() {
             <TableRow key={entry.id}>
               <TableCell className="font-medium">{entry.description}</TableCell>
               <TableCell>{entry.time}</TableCell>
-              <TableCell>{entry.contact.name}</TableCell>
+              <TableCell>{entry.contact.company_name}</TableCell>
               <TableCell>{entry.project.name}</TableCell>
             </TableRow>
           ))}
