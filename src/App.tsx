@@ -4,6 +4,7 @@ import { TimeEntriesTable } from "./components/TimeEntriesTable";
 import { NewTimeEntryForm } from "./components/NewTimeEntryForm";
 import { useMoneybirdStore } from "./stores/moneybird";
 import { SettingsDialog } from "./components/SettingsDialog";
+import { InfoDialog } from "./components/InfoDialog";
 
 function App() {
   const { initialize, initialized } = useMoneybirdStore();
@@ -25,6 +26,9 @@ function App() {
         <TimeEntriesTable />
         <div className="fixed bottom-0 right-0 z-50 bg-white border-l border-t p-3 rounded-tl-md">
           <SettingsDialog />
+        </div>
+        <div className="fixed bottom-0 left-0 z-50 bg-white border-r border-t p-3 rounded-tr-md">
+          <InfoDialog />
         </div>
       </main>
     </div>

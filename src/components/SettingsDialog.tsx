@@ -67,20 +67,27 @@ export function SettingsDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+        <DialogHeader className={'border-b pb-4'}>
           <DialogTitle>Moneybird Settings</DialogTitle>
+          <p className={'text-sm text-gray-500 text-left'}>
+            Configure your Moneybird API settings to enable integration with your Moneybird account.
+            Please ensure you have the correct API token, administration ID and select the user you want to associate with you timetracking data.
+          </p>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="apiToken">API Token</Label>
+            <p className={'text-sm text-gray-500'}>You can create an API token in your Moneybird account settings under Settings &gt; External applications.</p>
             <Input id="apiToken" value={localApiToken} onChange={e => setLocalApiToken(e.target.value)} autoComplete="off" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="adminId">Administration ID</Label>
+            <p className={'text-sm text-gray-500'}>You can find your administration ID in the url of your Moneybird administration, e.g. <code>https://moneybird.com/123456789</code>.</p>
             <Input id="adminId" value={localAdminId} onChange={e => setLocalAdminId(e.target.value)} autoComplete="off" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="userId">User</Label>
+            <p className={'text-sm text-gray-500'}>Select the user you want to associate with your timetracking data.</p>
             <Combobox
               options={users.map(u => ({ value: u.id, label: u.name }))}
               value={localUserId}
