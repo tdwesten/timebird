@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@radix-ui/react-label";
+import { Label } from "@/components/ui/label";
 import { useMoneybirdStore } from "@/stores/moneybird";
 import { TimeEntry, fetchContacts, fetchProjects } from "@/api/moneybird";
 import { Combobox } from "@/components/ui/combobox";
@@ -310,8 +310,7 @@ export function NewTimeEntryForm() {
           <Input
             id="endTime"
             type="time"
-            placeholder={"00:00"}
-            value={endTime ?? ""}
+            value={endTime ?? "00:00"} // Default to 00:00 if endTime is null
             onChange={(e) => setEndTime(e.target.value)}
             disabled={!isApiConfigured || isSubmitting}
           />
@@ -351,7 +350,7 @@ export function NewTimeEntryForm() {
             <Label htmlFor="endDate" className="text-sm font-medium">
               End Date
             </Label>
-            <input
+            <Input
               id="endDate"
               type="date"
               value={endDate}
