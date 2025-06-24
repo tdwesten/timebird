@@ -15,20 +15,15 @@ interface Project {
   id: string;
   name: string;
 }
-interface User {
-  id: string;
-  name: string;
-}
 
 export function NewTimeEntryForm() {
-  const { addTimeEntry, apiToken, administrationId } = useMoneybirdStore();
+  const { addTimeEntry, apiToken, administrationId, userId: savedUserId } = useMoneybirdStore();
   const [description, setDescription] = useState("");
   const [contactId, setContactId] = useState("");
   const [contactName, setContactName] = useState("");
   const [projectId, setProjectId] = useState("");
   const [projectName, setProjectName] = useState("");
-  const [userId, setUserId] = useState("");
-  const [userName, setUserName] = useState("");
+
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState(() => {
     const now = new Date();
@@ -40,13 +35,11 @@ export function NewTimeEntryForm() {
   const [error, setError] = useState<string | null>(null);
   const [showDateSelectors, setShowDateSelectors] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
-  const [timerStart, setTimerStart] = useState<Date | null>(null);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
 
   // --- Add state for contacts and projects ---
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [loadingOptions, setLoadingOptions] = useState(false);
 
   const resetForm = () => {
@@ -55,8 +48,6 @@ export function NewTimeEntryForm() {
     setContactName("");
     setProjectId("");
     setProjectName("");
-    setUserId("");
-    setUserName("");
     setStartDate("");
     // Reset time to current time
     const now = new Date();
@@ -83,11 +74,6 @@ export function NewTimeEntryForm() {
 
     if (!projectId || !projectName) {
       setError("Project information is required");
-      return;
-    }
-
-    if (!userId || !userName) {
-      setError("User is required");
       return;
     }
 
@@ -121,7 +107,7 @@ export function NewTimeEntryForm() {
       }
 
       // Create the time entry object
-      const newEntry: Omit<TimeEntry, "id"> & { user_id: string } = {
+      const newEntry: Omit<TimeEntry, "id"> = {
         description,
         contact: {
           id: contactId,
@@ -133,9 +119,9 @@ export function NewTimeEntryForm() {
         },
         started_at: startedAt,
         ended_at: endedAt,
-        time: "", // This will be calculated by the API
-        user_id: userId,
-      };
+        time: "",
+        user_id: savedUserId,
+      } as any;
 
       // Add the time entry
       await addTimeEntry(newEntry);
@@ -165,10 +151,6 @@ export function NewTimeEntryForm() {
         ]);
         setContacts(contactsData);
         setProjects(projectsData);
-        // Fetch users (mock for now)
-        setUsers([
-          { id: "1", name: "You" }
-        ]);
       } catch (e) {
         // Optionally handle error
       } finally {
@@ -181,7 +163,6 @@ export function NewTimeEntryForm() {
   // Timer logic
   useEffect(() => {
     if (timerActive && !timerInterval) {
-      setTimerStart(new Date());
       setEndTime("");
       const interval = setInterval(() => {
         const now = new Date();
@@ -201,7 +182,6 @@ export function NewTimeEntryForm() {
     if (!timerActive) {
       // Start timer
       setTimerActive(true);
-      setTimerStart(new Date());
       setEndTime("");
     } else {
       // Stop timer and save entry
@@ -214,7 +194,7 @@ export function NewTimeEntryForm() {
       const today = now.toISOString().split('T')[0];
       const startedAt = showDateSelectors && startDate ? new Date(`${startDate}T${startTime}`).toISOString() : new Date(`${today}T${startTime}`).toISOString();
       const endedAt = now.toISOString();
-      const newEntry: Omit<TimeEntry, "id"> & { user_id: string } = {
+      const newEntry: Omit<TimeEntry, "id"> = {
         description,
         contact: {
           id: contactId,
@@ -227,11 +207,12 @@ export function NewTimeEntryForm() {
         started_at: startedAt,
         ended_at: endedAt,
         time: "",
-        user_id: userId,
-      };
+        user_id: savedUserId,
+      } as any;
       try {
-        await addTimeEntry(newEntry);
-        resetForm();
+        await addTimeEntry(newEntry).then(() => {
+          resetForm();
+        });
       } catch (err) {
         setError("Failed to create time entry. Please try again.");
       }
@@ -310,23 +291,6 @@ export function NewTimeEntryForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="userId" className="text-sm font-medium">
-            User
-          </Label>
-          <Combobox
-            options={users.map((u) => ({ value: u.id, label: u.name }))}
-            value={userId}
-            onChange={(opt) => {
-              setUserId(opt.value);
-              setUserName(opt.label);
-            }}
-            placeholder={loadingOptions ? "Loading..." : "Select user"}
-            disabled={!isApiConfigured || isSubmitting || loadingOptions}
-            inputId="userId"
-            className="w-full"
-          />
-        </div>
         <div className="space-y-2">
           <Label htmlFor="startTime" className="text-sm font-medium">
             Start Time

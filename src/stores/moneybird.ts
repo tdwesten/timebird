@@ -23,6 +23,10 @@ interface MoneybirdState {
   // Store initialization
   initialized: boolean;
   initialize: () => Promise<void>;
+
+  // User ID
+  userId: string;
+  setUserId: (id: string) => Promise<void>;
 }
 
 // Variable to hold the store instance
@@ -37,6 +41,7 @@ export const useMoneybirdStore = create<MoneybirdState>((set, get) => ({
   isLoading: false,
   error: null,
   initialized: false,
+  userId: '',
 
   // Initialize the store by loading settings from Tauri store
   initialize: async () => {
@@ -47,11 +52,12 @@ export const useMoneybirdStore = create<MoneybirdState>((set, get) => ({
       // Load settings from the store
       const apiToken = await settingsStore.get('apiToken') as string || '';
       const administrationId = await settingsStore.get('administrationId') as string || '';
-
-      set({ 
+      const userId = await settingsStore.get('userId') as string || '';
+      set({
         apiToken, 
         administrationId,
-        initialized: true 
+        userId,
+        initialized: true
       });
 
       // If we have both API token and administration ID, fetch time entries
@@ -94,6 +100,21 @@ export const useMoneybirdStore = create<MoneybirdState>((set, get) => ({
     }
   },
 
+  // Set user ID and save to store
+  setUserId: async (id: string) => {
+    try {
+      if (!settingsStore) {
+        throw new Error('Store not initialized');
+      }
+      await settingsStore.set('userId', id);
+      await settingsStore.save();
+      set({ userId: id });
+    } catch (error) {
+      console.error('Failed to save user ID:', error);
+      set({ error: 'Failed to save user ID' });
+    }
+  },
+
   // Fetch time entries from the API
   fetchTimeEntries: async () => {
     const { apiToken, administrationId } = get();
@@ -119,6 +140,8 @@ export const useMoneybirdStore = create<MoneybirdState>((set, get) => ({
 
   // Add a new time entry
   addTimeEntry: async (entry: Omit<TimeEntry, 'id'>) => {
+
+    console.log('Adding new time entry:', entry);
     const { apiToken, administrationId } = get();
 
     // Check if we have the required configuration

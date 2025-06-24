@@ -16,27 +16,13 @@ export interface TimeEntry {
   };
   started_at: string;
   ended_at: string;
+  user_id: string;
+  billable?: boolean; // Optional field for billable status
 }
 
 // Define the base URL for the Moneybird API
 const MONEYBIRD_API_BASE_URL = 'https://moneybird.com/api/v2';
 
-// Mock data for development or fallback when API is not configured
-const mockTimeEntries: TimeEntry[] = Array.from({ length: 20 }, (_, i) => ({
-  id: `entry-${i + 1}`,
-  description: `Time entry ${i + 1} description`,
-  time: `${Math.floor(Math.random() * 8) + 1}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
-  contact: {
-    id: `contact-${Math.floor(Math.random() * 5) + 1}`,
-    company_name: `Client ${Math.floor(Math.random() * 5) + 1}`,
-  },
-  project: {
-    id: `project-${Math.floor(Math.random() * 3) + 1}`,
-    name: `Project ${Math.floor(Math.random() * 3) + 1}`,
-  },
-  started_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-  ended_at: new Date().toISOString(),
-}));
 
 /**
  * Helper function to create headers with the API token
@@ -60,7 +46,6 @@ export async function fetchLastTimeEntries(apiToken?: string, administrationId?:
   if (!apiToken || !administrationId) {
     console.warn('API token or administration ID not provided, returning mock data');
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
-    return mockTimeEntries;
   }
 
   try {
@@ -68,7 +53,7 @@ export async function fetchLastTimeEntries(apiToken?: string, administrationId?:
       `${MONEYBIRD_API_BASE_URL}/${administrationId}/time_entries?per_page=20`,
       {
         method: 'GET',
-        headers: createHeaders(apiToken),
+        headers: createHeaders(apiToken as string),
       }
     );
 
@@ -122,10 +107,12 @@ export async function createTimeEntry(
     const requestData = {
       time_entry: {
         description: entry.description,
-        started_at: entry.started_at,
-        ended_at: entry.ended_at,
+        started_at: entry.started_at.replace('T', ' ').replace('Z', ' UTC'),
+        ended_at: entry.ended_at.replace('T', ' ').replace('Z', ' UTC'),
         contact_id: entry.contact.id,
         project_id: entry.project.id,
+        user_id: entry.user_id,
+        billable: entry.billable || false, // Optional field, default to false
       },
     };
 
@@ -152,15 +139,16 @@ export async function createTimeEntry(
       description: data.description,
       time: calculateTimeSpent(data.started_at, data.ended_at),
       contact: {
-        id: data.contact_id || '',
-        company_name: data.contact_name || 'Unknown Contact',
+        id: data.contact.id,
+        company_name: data.contact.contact_name,
       },
       project: {
-        id: data.project_id || '',
-        name: data.project_name || 'Unknown Project',
+        id: data.project.id,
+        name: data.project.name,
       },
       started_at: data.started_at,
       ended_at: data.ended_at,
+      user_id: data.user_id,
     };
   } catch (error) {
     console.error('Error creating time entry:', error);
@@ -227,6 +215,7 @@ export async function updateTimeEntry(
       },
       started_at: data.started_at,
       ended_at: data.ended_at,
+      user_id: data.user_id,
     };
   } catch (error) {
     console.error('Error updating time entry:', error);
@@ -301,6 +290,35 @@ export async function fetchProjects(apiToken?: string, administrationId?: string
     return data.map((p: any) => ({ id: p.id, name: p.name }));
   } catch (error) {
     console.error('Error fetching projects:', error);
+    throw error;
+  }
+}
+
+// --- Fetch users from Moneybird API ---
+export async function fetchUsers(apiToken?: string, administrationId?: string): Promise<{ id: string; name: string }[]> {
+  if (!apiToken || !administrationId) {
+    // Return mock users if not configured
+    return [
+      { id: "user-1", name: "User 1" },
+      { id: "user-2", name: "User 2" },
+      { id: "user-3", name: "User 3" },
+    ];
+  }
+  try {
+    const response = await fetch(
+      `${MONEYBIRD_API_BASE_URL}/${administrationId}/users`,
+      {
+        method: 'GET',
+        headers: createHeaders(apiToken),
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to fetch users: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.map((u: any) => ({ id: u.id, name: u.name }));
+  } catch (error) {
+    console.error('Error fetching users:', error);
     throw error;
   }
 }
