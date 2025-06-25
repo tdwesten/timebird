@@ -5,6 +5,8 @@ import { useMoneybirdStore } from "@/stores/moneybird";
 import { TimeEntry, fetchContacts, fetchProjects } from "@/api/moneybird";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
+import { Trash2 } from "lucide-react";
+import { getCurrentWindow } from '@tauri-apps/api/window';
 
 // --- Add types for Contact and Project ---
 interface Contact {
@@ -178,6 +180,22 @@ export function NewTimeEntryForm() {
     };
   }, [timerActive]);
 
+  // Set dock badge when timer is running
+  useEffect(() => {
+    let win: any;
+    (async () => {
+      console.log(win);
+
+      win = await getCurrentWindow();
+      if (timerActive) {
+        win.setBadgeCount(1);
+      } else {
+        win.setBadgeCount();
+      }
+    })();
+    // No cleanup needed for badge
+  }, [timerActive]);
+
   const handleTimerClick = async () => {
     if (!timerActive) {
       // Start timer
@@ -249,7 +267,8 @@ export function NewTimeEntryForm() {
           onChange={(e) => setDescription(e.target.value)}
           placeholder="What did you work on?"
           disabled={!isApiConfigured || isSubmitting}
-          autoFocus
+          autoFocus={true}
+          tabIndex={0}
         />
       </div>
 
@@ -363,7 +382,18 @@ export function NewTimeEntryForm() {
       )}
 
       <div className="flex justify-end gap-2 pt-4">
-        <Button 
+        <Button
+          type="button"
+          variant="outline"
+          onClick={resetForm}
+          disabled={isSubmitting}
+          className="flex items-center justify-center"
+          title="Reset form"
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
+
+        <Button
           type="button"
           onClick={handleTimerClick}
           disabled={!isApiConfigured || isSubmitting}

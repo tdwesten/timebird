@@ -11,7 +11,7 @@ const steps = ["welcome", "admin", "token", "user", "finished"] as const;
 type Step = typeof steps[number];
 
 export function OnboardingDialog() {
-  const { apiToken, setApiToken, setAdministrationId, setUserId, initialized, initialize } = useMoneybirdStore();
+  const { apiToken, setApiToken, setAdministrationId, setUserId, initialized, initialize, fetchTimeEntries } = useMoneybirdStore();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("welcome");
   const [localAdminId, setLocalAdminId] = useState("");
@@ -46,7 +46,10 @@ export function OnboardingDialog() {
     await setAdministrationId(localAdminId);
     await setUserId(localUserId);
     setStep("finished");
+    fetchTimeEntries()
     setTimeout(() => setOpen(false), 1200);
+
+
   };
 
   return (
