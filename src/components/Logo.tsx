@@ -1,4 +1,3 @@
-import React from "react";
 import logoOutline from "@/assets/logo-outline.svg";
 
 export function Logo() {
