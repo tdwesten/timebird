@@ -3,7 +3,6 @@ import { useMoneybirdStore } from "@/stores/moneybird";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -57,7 +56,6 @@ export function TimeEntriesTable() {
   return (
     <div className="rounded-md border">
       <Table>
-        <TableCaption>Last 20 time entries from Moneybird</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Description</TableHead>

@@ -16,6 +16,7 @@ export function SettingsDialog() {
   const [users, setUsers] = useState<{ id: string; name: string }[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [showApiToken, setShowApiToken] = useState(false);
 
   useEffect(() => {
     if (!initialized) {
@@ -78,7 +79,12 @@ export function SettingsDialog() {
           <div className="grid gap-2">
             <Label htmlFor="apiToken">API Token</Label>
             <p className={'text-sm text-gray-500'}>You can create an API token in your Moneybird account settings under Settings &gt; External applications.</p>
-            <Input id="apiToken" value={localApiToken} onChange={e => setLocalApiToken(e.target.value)} autoComplete="off" />
+            <div className="flex gap-2 items-center">
+              <Input id="apiToken" type={showApiToken ? "text" : "password"} value={localApiToken} onChange={e => setLocalApiToken(e.target.value)} autoComplete="off" />
+              <Button type="button" variant="outline" size="sm" onClick={() => setShowApiToken(v => !v)}>
+                {showApiToken ? "Hide" : "Show"}
+              </Button>
+            </div>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="adminId">Administration ID</Label>
