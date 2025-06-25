@@ -5,6 +5,7 @@ import { NewTimeEntryForm } from "./components/NewTimeEntryForm";
 import { useMoneybirdStore } from "./stores/moneybird";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { InfoDialog } from "./components/InfoDialog";
+import { OnboardingDialog } from "./components/OnboardingDialog";
 
 function App() {
   const { initialize, initialized } = useMoneybirdStore();
@@ -19,6 +20,7 @@ function App() {
   return (
     <div className="flex flex-col h-screen w-screen">
       <main className="py-6 px-4 w-screen flex-1 h-screen bg-white border overflow-y-auto">
+        <OnboardingDialog />
         <div className="rounded-md border p-4 mb-6">
           <h2 className="text-lg font-semibold mb-4">New Time Entry</h2>
           <NewTimeEntryForm />

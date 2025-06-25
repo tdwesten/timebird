@@ -49,7 +49,7 @@ export function TimeEntriesTable() {
   if (timeEntries.length === 0) {
     return (
       <div className="py-10 text-center text-gray-600">
-        No time entries found. Create your first entry using the "New Time Entry" button.
+        No time entries found... Time to get tracking!
       </div>
     );
   }
@@ -62,17 +62,22 @@ export function TimeEntriesTable() {
           <TableRow>
             <TableHead>Description</TableHead>
             <TableHead>Time</TableHead>
-            <TableHead>Contact</TableHead>
-            <TableHead>Project</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {timeEntries.map((entry) => (
             <TableRow key={entry.id}>
-              <TableCell className="font-medium">{entry.description}</TableCell>
+              <TableCell>
+                <div className={'flex flex-col gap-2'}>
+                  <div  className="font-blod text-base text-primary">
+                    {entry.description}
+                  </div>
+                  <div className={'flex gap-2 text-sm text-gray-500'}>
+                    {entry.contact.company_name} / {entry.project.name}
+                  </div>
+                </div>
+              </TableCell>
               <TableCell>{entry.time}</TableCell>
-              <TableCell>{entry.contact.company_name}</TableCell>
-              <TableCell>{entry.project.name}</TableCell>
             </TableRow>
           ))}
         </TableBody>
