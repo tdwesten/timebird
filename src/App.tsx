@@ -25,7 +25,9 @@ function App() {
           <h2 className="text-lg font-semibold mb-4">New Time Entry</h2>
           <NewTimeEntryForm />
         </div>
-        <TimeEntriesTable />
+        <div className={'mb-14'}>
+          <TimeEntriesTable />
+        </div>
         <div className="fixed bottom-0 right-0 z-50 bg-white border-l border-t p-3 rounded-tl-md">
           <SettingsDialog />
         </div>

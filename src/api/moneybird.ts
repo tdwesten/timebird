@@ -5,6 +5,7 @@ import { fetch } from '@tauri-apps/plugin-http';
 export interface TimeEntry {
   id: string;
   description: string;
+  url?: string; // Optional field for URL
   time: string; // Duration or time spent
   contact: {
     id: string;
@@ -68,6 +69,7 @@ export async function fetchLastTimeEntries(apiToken?: string, administrationId?:
       id: entry.id,
       description: entry.description,
       time: calculateTimeSpent(entry.started_at, entry.ended_at),
+      url: `https://moneybird.com/${administrationId}/time_entries/${entry.id}`, // Construct URL for the time entry
       contact: {
         id: entry.contact_id || '',
         company_name: entry.contact.company_name || 'Unknown Contact',
@@ -78,6 +80,7 @@ export async function fetchLastTimeEntries(apiToken?: string, administrationId?:
       },
       started_at: entry.started_at,
       ended_at: entry.ended_at,
+      billable: entry.billable || false, // Optional field
     }));
   } catch (error) {
     console.error('Error fetching time entries:', error);

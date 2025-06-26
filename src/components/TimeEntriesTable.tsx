@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {EuroIcon} from "lucide-react";
 
 export function TimeEntriesTable() {
   const { 
@@ -60,6 +61,7 @@ export function TimeEntriesTable() {
           <TableRow>
             <TableHead>Description</TableHead>
             <TableHead>Time</TableHead>
+            <TableHead><EuroIcon className={`w-4`}/></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -68,7 +70,9 @@ export function TimeEntriesTable() {
               <TableCell>
                 <div className={'flex flex-col gap-2'}>
                   <div  className="font-blod text-base text-primary">
-                    {entry.description}
+                    <a href={entry.url} target="_blank" rel="noopener noreferrer" className={`font-medium`}>
+                      {entry.description}
+                    </a>
                   </div>
                   <div className={'flex gap-2 text-sm text-gray-500'}>
                     {entry.contact.company_name} / {entry.project.name}
@@ -76,6 +80,7 @@ export function TimeEntriesTable() {
                 </div>
               </TableCell>
               <TableCell>{entry.time}</TableCell>
+              <TableCell>{entry.billable}{entry.billable ? <EuroIcon className={`w-4`}/> : null}</TableCell>
             </TableRow>
           ))}
         </TableBody>

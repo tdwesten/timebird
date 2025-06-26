@@ -5,7 +5,7 @@ import { useMoneybirdStore } from "@/stores/moneybird";
 import { TimeEntry, fetchContacts, fetchProjects } from "@/api/moneybird";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
-import { Trash2 } from "lucide-react";
+import {Trash2} from "lucide-react";
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 // --- Add types for Contact and Project ---
@@ -38,6 +38,7 @@ export function NewTimeEntryForm() {
   const [showDateSelectors, setShowDateSelectors] = useState(false);
   const [timerActive, setTimerActive] = useState(false);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [billable, setBillable] = useState(false);
 
   // --- Add state for contacts and projects ---
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -58,6 +59,7 @@ export function NewTimeEntryForm() {
     setEndDate("");
     setEndTime(null);
     setError(null);
+    setBillable(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,6 +125,7 @@ export function NewTimeEntryForm() {
         ended_at: endedAt,
         time: "",
         user_id: savedUserId,
+        billable,
       } as any;
 
       // Add the time entry
@@ -226,6 +229,7 @@ export function NewTimeEntryForm() {
         ended_at: endedAt,
         time: "",
         user_id: savedUserId,
+        billable,
       } as any;
       try {
         await addTimeEntry(newEntry).then(() => {
@@ -236,6 +240,23 @@ export function NewTimeEntryForm() {
       }
     }
   };
+
+  // Format time input to HH:MM (24h) on change
+  function formatTimeInput(value: string) {
+    // Remove all non-digits and colons
+    let v = value.replace(/[^0-9:]/g, "");
+    // If only 3 or 4 digits, insert colon
+    if (/^\d{3,4}$/.test(v)) {
+      v = v.padStart(4, "0");
+      v = v.slice(0, 2) + ":" + v.slice(2, 4);
+    }
+    // If already has colon, ensure only two digits before and after
+    if (/^\d{2}:\d{2}$/.test(v)) {
+      return v;
+    }
+    // If not valid, return as is (let user keep typing)
+    return v;
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -316,40 +337,42 @@ export function NewTimeEntryForm() {
           </Label>
           <Input
             id="startTime"
-            type="time"
+            type="text"
             value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+            onChange={(e) => setStartTime(formatTimeInput(e.target.value))}
             disabled={!isApiConfigured || isSubmitting}
+            placeholder="00:00"
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="endTime" className="text-sm font-medium">
             End Time
           </Label>
-          <Input
-            id="endTime"
-            type="time"
-            value={endTime ?? "00:00"} // Default to 00:00 if endTime is null
-            onChange={(e) => setEndTime(e.target.value)}
-            disabled={!isApiConfigured || isSubmitting}
-          />
+          <div className="relative">
+            <Input
+              id="endTime"
+              type="text"
+              value={endTime ?? ""}
+              onChange={(e) => setEndTime(formatTimeInput(e.target.value))}
+              disabled={!isApiConfigured || isSubmitting}
+              placeholder="00:00"
+            />
+            {endTime && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setEndTime("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                tabIndex={-1}
+                title="Clear end time"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
-
-      <div className="flex items-center space-x-2 mt-2">
-        <Input
-          type="checkbox"
-          id="showDateSelectors"
-          checked={showDateSelectors}
-          onChange={(e) => setShowDateSelectors(e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-          disabled={!isApiConfigured || isSubmitting}
-        />
-        <Label htmlFor="showDateSelectors" className="text-sm font-medium">
-          Show date selectors
-        </Label>
-      </div>
-
       {showDateSelectors && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -380,27 +403,83 @@ export function NewTimeEntryForm() {
           </div>
         </div>
       )}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex items-center space-x-2 mt-2">
+          <Input
+            type="checkbox"
+            id="billable"
+            checked={billable}
+            onChange={e => setBillable(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            disabled={!isApiConfigured || isSubmitting}
+          />
+          <Label htmlFor="billable" className="text-sm font-medium">
+            Billable
+          </Label>
+        </div>
+      </div>
 
-      <div className="flex justify-end gap-2 pt-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={resetForm}
-          disabled={isSubmitting}
-          className="flex items-center justify-center"
-          title="Reset form"
-        >
-          <Trash2 className="w-4 h-4" />
-        </Button>
 
-        <Button
-          type="button"
-          onClick={handleTimerClick}
-          disabled={!isApiConfigured || isSubmitting}
-          className={timerActive ? "bg-red-500 hover:bg-red-600 text-white" : ""}
-        >
-          {timerActive ? "Stop Timer" : "Start Timer"}
-        </Button>
+
+      <div className="flex justify-between gap-2 pt-4 items-center border-t">
+        <div className="flex items-center space-x-2 mt-2">
+          <Input
+            type="checkbox"
+            id="showDateSelectors"
+            checked={showDateSelectors}
+            onChange={(e) => setShowDateSelectors(e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            disabled={!isApiConfigured || isSubmitting}
+          />
+          <Label htmlFor="showDateSelectors" className="text-sm font-medium text-gray-500">
+            Show date selectors
+          </Label>
+        </div>
+        <div className={`flex items-center space-x-2`}>
+          {endTime && !timerActive ? (
+            <>
+              <Button
+                type="button"
+                onClick={handleTimerClick}
+                disabled={!isApiConfigured || isSubmitting}
+                className={timerActive ? "bg-red-500 hover:bg-red-600 text-white" : ""}
+              >
+                Save
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                disabled={isSubmitting}
+                className="flex items-center justify-center"
+                title="Reset form"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={resetForm}
+                disabled={isSubmitting}
+                className="flex items-center justify-center"
+                title="Reset form"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+              <Button
+                type="button"
+                onClick={handleTimerClick}
+                disabled={!isApiConfigured || isSubmitting}
+                className={timerActive ? "bg-red-500 hover:bg-red-600 text-white" : ""}
+              >
+                {timerActive ? "Stop Timer" : "Start Timer"}
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </form>
   );
