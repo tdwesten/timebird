@@ -60,7 +60,7 @@ export function OnboardingDialog() {
             <DialogHeader>
               <DialogTitle>Welcome to Timebird</DialogTitle>
             </DialogHeader>
-            <p className="text-gray-600">Timebird is a Moneybird time tracking app for macOS, built by Thomas van der Westen (Fullstack developer at Codesmiths). <a href="https://github.com/thomasvanderwesten" className="text-blue-600 underline" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+            <p className="text-gray-600 text-center">Timebird is a Moneybird time tracking app.</p>
             <Button onClick={next} className="w-full">Get started</Button>
           </div>
         )}

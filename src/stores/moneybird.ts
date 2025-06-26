@@ -46,8 +46,10 @@ export const useMoneybirdStore = create<MoneybirdState>((set, get) => ({
   // Initialize the store by loading settings from Tauri store
   initialize: async () => {
     try {
-      // Load the store
-      settingsStore = await load('store.json', { autoSave: false });
+      // Current environment, so we can have a development store and a production store
+      const storeFileName = process.env.NODE_ENV === 'development' ? 'dev-store.json' : 'store.json';
+
+      settingsStore = await load(storeFileName, { autoSave: false });
 
       // Load settings from the store
       const apiToken = await settingsStore.get('apiToken') as string || '';
