@@ -62,31 +62,31 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: tauri-app-release
           releaseCommitish: main
-
-      - name: Create Windows portable asset
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          ConvertFrom-Json '${{ steps.build.outputs.artifactPaths }}' | ForEach-Object {
-              if ((Split-Path $_ -Leaf) -match '(.+)-setup\.exe$') {
-                  $asset = Join-Path $PWD "$($Matches[1]).zip"
-                  Compress-Archive *.exe,third-party $asset
-                  echo "WINDOWS_PORTABLE_ASSET=$asset" >> $env:GITHUB_ENV
-              }
-          }
-        working-directory: src-tauri/target/release
-
-      - name: Release Windows portable asset
-        if: runner.os == 'Windows'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.build.outputs.appVersion }}
-          files: ${{ env.WINDOWS_PORTABLE_ASSET }}
-          repository: ${{ github.repository_owner }}/tauri-app-release
-          token: ${{ secrets.DEPLOY_TOKEN }}
-
-      - name: Create tag
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ steps.build.outputs.appVersion }}
-          body: v${{ steps.build.outputs.appVersion }} release
+#
+#      - name: Create Windows portable asset
+#        if: runner.os == 'Windows'
+#        shell: pwsh
+#        run: |
+#          ConvertFrom-Json '${{ steps.build.outputs.artifactPaths }}' | ForEach-Object {
+#              if ((Split-Path $_ -Leaf) -match '(.+)-setup\.exe$') {
+#                  $asset = Join-Path $PWD "$($Matches[1]).zip"
+#                  Compress-Archive *.exe,third-party $asset
+#                  echo "WINDOWS_PORTABLE_ASSET=$asset" >> $env:GITHUB_ENV
+#              }
+#          }
+#        working-directory: src-tauri/target/release
+#
+#      - name: Release Windows portable asset
+#        if: runner.os == 'Windows'
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          tag_name: v${{ steps.build.outputs.appVersion }}
+#          files: ${{ env.WINDOWS_PORTABLE_ASSET }}
+#          repository: ${{ github.repository_owner }}/tauri-app-release
+#          token: ${{ secrets.DEPLOY_TOKEN }}
+#
+#      - name: Create tag
+#        uses: softprops/action-gh-release@v2
+#        with:
+#          tag_name: v${{ steps.build.outputs.appVersion }}
+#          body: v${{ steps.build.outputs.appVersion }} release
