@@ -55,8 +55,8 @@ export function TimeEntriesTable() {
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
+    <div className="rounded-md border bg-white">
+      <Table className={` `}>
         <TableHeader>
           <TableRow>
             <TableHead>Description</TableHead>
@@ -70,7 +70,7 @@ export function TimeEntriesTable() {
               <TableCell>
                 <div className={'flex flex-col gap-2'}>
                   <div  className="font-blod text-base text-primary">
-                    <a href={entry.url} target="_blank" rel="noopener noreferrer" className={`font-medium`}>
+                    <a href={entry.url} target="_blank" rel="noopener noreferrer" className={`font-medium line-clamp-1`}>
                       {entry.description}
                     </a>
                   </div>

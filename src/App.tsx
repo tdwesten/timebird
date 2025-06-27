@@ -17,14 +17,14 @@ function App() {
     }
   }, [initialize, initialized]);
 
-  return (
-    <div className="flex flex-col h-screen w-screen">
-      <main className="py-6 px-4 w-screen flex-1 h-screen bg-white border overflow-y-auto">
+  return (<div className="flex flex-col border-t h-screen w-screen bg-gray-50 overflow-y-scroll">
+      <div className={`p-4`}>
+        <h2 className="text-lg font-semibold mb-4">New Time Entry</h2>
+        <NewTimeEntryForm />
+      </div>
+    <div className="flex flex-col h-screen w-screen border-t">
+      <main className="py-6 px-4 w-screen flex-1 h-screen bg-gray-100 overflow-y-auto">
         {!useMoneybirdStore.getState().apiToken && <OnboardingDialog />}
-        <div className="rounded-md border p-4 mb-6">
-          <h2 className="text-lg font-semibold mb-4">New Time Entry</h2>
-          <NewTimeEntryForm />
-        </div>
         <div className={'mb-14'}>
           <TimeEntriesTable />
         </div>
@@ -36,6 +36,7 @@ function App() {
         </div>
       </main>
     </div>
+  </div>
   );
 }
 

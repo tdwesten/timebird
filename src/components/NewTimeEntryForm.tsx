@@ -5,7 +5,7 @@ import { useMoneybirdStore } from "@/stores/moneybird";
 import { TimeEntry, fetchContacts, fetchProjects } from "@/api/moneybird";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
-import {Trash2} from "lucide-react";
+import {Clock2Icon, Trash2} from "lucide-react";
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 // --- Add types for Contact and Project ---
@@ -331,20 +331,25 @@ export function NewTimeEntryForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 relative">
           <Label htmlFor="startTime" className="text-sm font-medium">
             Start Time
           </Label>
-          <Input
-            id="startTime"
-            type="text"
-            value={startTime}
-            onChange={(e) => setStartTime(formatTimeInput(e.target.value))}
-            disabled={!isApiConfigured || isSubmitting}
-            placeholder="00:00"
-          />
+          <div className="relative">
+            <Input
+              id="startTime"
+              type="text"
+              value={startTime}
+              onChange={(e) => setStartTime(formatTimeInput(e.target.value))}
+              disabled={!isApiConfigured || isSubmitting}
+              placeholder="00:00"
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Clock2Icon className={`w-5 h-5 text-gray-400`} />
+            </span>
+          </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 relative">
           <Label htmlFor="endTime" className="text-sm font-medium">
             End Time
           </Label>
@@ -357,13 +362,16 @@ export function NewTimeEntryForm() {
               disabled={!isApiConfigured || isSubmitting}
               placeholder="00:00"
             />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Clock2Icon className={`w-5 h-5 text-gray-400`} />
+            </span>
             {endTime && (
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
                 onClick={() => setEndTime("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                className="absolute right-8 top-1/2 -translate-y-1/2 p-1"
                 tabIndex={-1}
                 title="Clear end time"
               >

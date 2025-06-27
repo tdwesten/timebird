@@ -19,6 +19,7 @@ export interface TimeEntry {
   ended_at: string;
   user_id: string;
   billable?: boolean; // Optional field for billable status
+  paused_duration: number;
 }
 
 // Define the base URL for the Moneybird API
@@ -81,6 +82,7 @@ export async function fetchLastTimeEntries(apiToken?: string, administrationId?:
       started_at: entry.started_at,
       ended_at: entry.ended_at,
       billable: entry.billable || false, // Optional field
+      paused_duration: entry.paused_duration || 0, // Optional field, default to 0
     }));
   } catch (error) {
     console.error('Error fetching time entries:', error);
@@ -152,6 +154,7 @@ export async function createTimeEntry(
       started_at: data.started_at,
       ended_at: data.ended_at,
       user_id: data.user_id,
+      paused_duration: data.paused_duration || 0, // Optional field, default to 0
     };
   } catch (error) {
     console.error('Error creating time entry:', error);
@@ -219,6 +222,7 @@ export async function updateTimeEntry(
       started_at: data.started_at,
       ended_at: data.ended_at,
       user_id: data.user_id,
+      paused_duration: data.paused_duration || 0, // Optional field, default to 0
     };
   } catch (error) {
     console.error('Error updating time entry:', error);
