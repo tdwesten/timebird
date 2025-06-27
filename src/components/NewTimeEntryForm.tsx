@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useMoneybirdStore } from "@/stores/moneybird";
+import { useTimerStore } from "@/stores/timer";
 import { TimeEntry, fetchContacts, fetchProjects } from "@/api/moneybird";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
-import {Clock2Icon, Trash2} from "lucide-react";
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import {Clock2Icon, PlayIcon, StopCircleIcon, Trash2} from "lucide-react";
 
 // --- Add types for Contact and Project ---
 interface Contact {
@@ -19,7 +19,19 @@ interface Project {
 }
 
 export function NewTimeEntryForm() {
-  const { addTimeEntry, apiToken, administrationId, userId: savedUserId } = useMoneybirdStore();
+  const { apiToken, administrationId, userId: savedUserId } = useMoneybirdStore();
+  const { 
+    isActive: timerActive, 
+    startTime, 
+    endTime, 
+    startTimer, 
+    stopTimer, 
+    resetTimer, 
+    setStartTime, 
+    setEndTime, 
+    saveTimeEntry 
+  } = useTimerStore();
+
   const [description, setDescription] = useState("");
   const [contactId, setContactId] = useState("");
   const [contactName, setContactName] = useState("");
@@ -27,17 +39,10 @@ export function NewTimeEntryForm() {
   const [projectName, setProjectName] = useState("");
 
   const [startDate, setStartDate] = useState("");
-  const [startTime, setStartTime] = useState(() => {
-    const now = new Date();
-    return now.toTimeString().substring(0, 5); // Format: HH:MM
-  });
   const [endDate, setEndDate] = useState("");
-  const [endTime, setEndTime] = useState<null | string>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDateSelectors, setShowDateSelectors] = useState(false);
-  const [timerActive, setTimerActive] = useState(false);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [billable, setBillable] = useState(false);
 
   // --- Add state for contacts and projects ---
@@ -52,20 +57,16 @@ export function NewTimeEntryForm() {
     setProjectId("");
     setProjectName("");
     setStartDate("");
-    // Reset time to current time
-    const now = new Date();
-    const currentTime = now.toTimeString().substring(0, 5); // Format: HH:MM
-    setStartTime(currentTime);
     setEndDate("");
-    setEndTime(null);
     setError(null);
     setBillable(false);
+    resetTimer(); // Use timer store's resetTimer function
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form
+    // Additional validations specific to form submission
     if (!description) {
       setError("Description is required");
       return;
@@ -91,54 +92,8 @@ export function NewTimeEntryForm() {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
-      setError(null);
-
-      // Create start and end datetime strings
-      let startedAt, endedAt;
-
-      if (showDateSelectors) {
-        startedAt = new Date(`${startDate}T${startTime}`).toISOString();
-        endedAt = new Date(`${endDate}T${endTime}`).toISOString();
-      } else {
-        // Use current date with selected time when date selectors are hidden
-        const now = new Date();
-        const today = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
-
-        startedAt = new Date(`${today}T${startTime}`).toISOString();
-        endedAt = new Date(`${today}T${endTime}`).toISOString();
-      }
-
-      // Create the time entry object
-      const newEntry: Omit<TimeEntry, "id"> = {
-        description,
-        contact: {
-          id: contactId,
-          company_name: contactName,
-        },
-        project: {
-          id: projectId,
-          name: projectName,
-        },
-        started_at: startedAt,
-        ended_at: endedAt,
-        time: "",
-        user_id: savedUserId,
-        billable,
-      } as any;
-
-      // Add the time entry
-      await addTimeEntry(newEntry);
-
-      // Reset form
-      resetForm();
-    } catch (err) {
-      console.error("Failed to create time entry:", err);
-      setError("Failed to create time entry. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Use the common save entry logic
+    await handleSaveEntry();
   };
 
   // Check if API is configured
@@ -165,56 +120,44 @@ export function NewTimeEntryForm() {
     loadOptions();
   }, [apiToken, administrationId]);
 
-  // Timer logic
-  useEffect(() => {
-    if (timerActive && !timerInterval) {
-      setEndTime("");
-      const interval = setInterval(() => {
-        const now = new Date();
-        setEndTime(now.toTimeString().substring(0, 5));
-      }, 1000);
-      setTimerInterval(interval);
-    } else if (!timerActive && timerInterval) {
-      clearInterval(timerInterval);
-      setTimerInterval(null);
-    }
-    return () => {
-      if (timerInterval) clearInterval(timerInterval);
-    };
-  }, [timerActive]);
-
-  // Set dock badge when timer is running
-  useEffect(() => {
-    let win: any;
-    (async () => {
-      console.log(win);
-
-      win = await getCurrentWindow();
-      if (timerActive) {
-        win.setBadgeCount(1);
-      } else {
-        win.setBadgeCount();
-      }
-    })();
-    // No cleanup needed for badge
-  }, [timerActive]);
+  // Timer-related useEffect hooks are now handled by the timer store
 
   const handleTimerClick = async () => {
     if (!timerActive) {
       // Start timer
-      setTimerActive(true);
-      setEndTime("");
+      startTimer();
     } else {
       // Stop timer and save entry
-      setTimerActive(false);
-      if (!description || !contactId || !contactName || !projectId || !projectName || !startTime) {
-        setError("All fields are required");
-        return;
-      }
+      stopTimer();
+      await handleSaveEntry();
+    }
+  };
+
+  const handleSaveEntry = async () => {
+    // Validate form
+    if (!description || !contactId || !contactName || !projectId || !projectName || !startTime) {
+      setError("All fields are required");
+      return false;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      // Create start and end datetime strings
       const now = new Date();
       const today = now.toISOString().split('T')[0];
-      const startedAt = showDateSelectors && startDate ? new Date(`${startDate}T${startTime}`).toISOString() : new Date(`${today}T${startTime}`).toISOString();
-      const endedAt = now.toISOString();
+      const startedAt = showDateSelectors && startDate 
+        ? new Date(`${startDate}T${startTime}`).toISOString() 
+        : new Date(`${today}T${startTime}`).toISOString();
+
+      const endedAt = showDateSelectors && endDate && endTime
+        ? new Date(`${endDate}T${endTime}`).toISOString()
+        : endTime 
+          ? new Date(`${today}T${endTime}`).toISOString()
+          : now.toISOString();
+
+      // Create the time entry object
       const newEntry: Omit<TimeEntry, "id"> = {
         description,
         contact: {
@@ -231,13 +174,23 @@ export function NewTimeEntryForm() {
         user_id: savedUserId,
         billable,
       } as any;
-      try {
-        await addTimeEntry(newEntry).then(() => {
-          resetForm();
-        });
-      } catch (err) {
+
+      // Save the time entry using the timer store
+      const success = await saveTimeEntry(newEntry);
+
+      if (success) {
+        resetForm();
+        return true;
+      } else {
         setError("Failed to create time entry. Please try again.");
+        return false;
       }
+    } catch (err) {
+      console.error("Failed to create time entry:", err);
+      setError("Failed to create time entry. Please try again.");
+      return false;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -341,7 +294,7 @@ export function NewTimeEntryForm() {
               type="text"
               value={startTime}
               onChange={(e) => setStartTime(formatTimeInput(e.target.value))}
-              disabled={!isApiConfigured || isSubmitting}
+              disabled={!isApiConfigured || isSubmitting || timerActive}
               placeholder="00:00"
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -359,18 +312,18 @@ export function NewTimeEntryForm() {
               type="text"
               value={endTime ?? ""}
               onChange={(e) => setEndTime(formatTimeInput(e.target.value))}
-              disabled={!isApiConfigured || isSubmitting}
-              placeholder="00:00"
+              disabled={!isApiConfigured || isSubmitting || timerActive}
+              placeholder={timerActive ? "Running..." : "00:00"}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <Clock2Icon className={`w-5 h-5 text-gray-400`} />
             </span>
-            {endTime && (
+            {endTime && !timerActive && (
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                onClick={() => setEndTime("")}
+                onClick={() => setEndTime(null)}
                 className="absolute right-8 top-1/2 -translate-y-1/2 p-1"
                 tabIndex={-1}
                 title="Clear end time"
@@ -448,14 +401,6 @@ export function NewTimeEntryForm() {
             <>
               <Button
                 type="button"
-                onClick={handleTimerClick}
-                disabled={!isApiConfigured || isSubmitting}
-                className={timerActive ? "bg-red-500 hover:bg-red-600 text-white" : ""}
-              >
-                Save
-              </Button>
-              <Button
-                type="button"
                 variant="outline"
                 onClick={resetForm}
                 disabled={isSubmitting}
@@ -463,6 +408,14 @@ export function NewTimeEntryForm() {
                 title="Reset form"
               >
                 <Trash2 className="w-4 h-4" />
+              </Button>
+              <Button
+                type="button"
+                onClick={handleSaveEntry}
+                disabled={!isApiConfigured || isSubmitting}
+                className="bg-green-500 hover:bg-green-600 text-white"
+              >
+                Save
               </Button>
             </>
           ) : (
@@ -483,7 +436,18 @@ export function NewTimeEntryForm() {
                 disabled={!isApiConfigured || isSubmitting}
                 className={timerActive ? "bg-red-500 hover:bg-red-600 text-white" : ""}
               >
-                {timerActive ? "Stop Timer" : "Start Timer"}
+                {!timerActive ? (
+                  <>
+                    <PlayIcon className={`h-4 -ml-1.5`} />
+                    Start timer
+                  </>
+                  ) : (
+                    <>
+                      <StopCircleIcon className={`h-4 -ml-1.5`} />
+                      Stop timer
+                    </>
+                  )
+                }
               </Button>
             </>
           )}
