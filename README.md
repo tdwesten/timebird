@@ -14,12 +14,12 @@ Timebird is a beautiful, native-feeling time tracking app for macOS, built with 
 
 ## Installation
 
-You can download the latest version of Timebird for **macOS**, **Windows**, and **Linux** from the [GitHub Releases page](https://github.com/thomasvanderwesten/timebird/releases).
+You can download the latest version of Timebird for **macOS**, **Windows**, and **Linux** from the [GitHub Releases page](https://github.com/tdwesten/timebird/releases).
 
 ### How to Install
 
 #### macOS
-1. Go to the [Releases](https://github.com/thomasvanderwesten/timebird/releases) section.
+1. Go to the [Releases](https://github.com/tdwesten/timebird/releases) section.
 2. Download the `.dmg` or `.app` file for macOS.
 3. Open the downloaded file and drag Timebird to your Applications folder.
 4. **Because this app is not signed, you may see a security warning.**
@@ -30,13 +30,13 @@ You can download the latest version of Timebird for **macOS**, **Windows**, and 
 5. Open Timebird from Applications as usual. If you see a security warning, right-click the app and choose "Open".
 
 #### Windows
-1. Go to the [Releases](https://github.com/thomasvanderwesten/timebird/releases) section.
+1. Go to the [Releases](https://github.com/tdwesten/timebird/releases) section.
 2. Download the `.msi` or `.exe` installer for Windows.
 3. Run the installer and follow the prompts.
 4. Launch Timebird from the Start menu or desktop shortcut.
 
 #### Linux
-1. Go to the [Releases](https://github.com/thomasvanderwesten/timebird/releases) section.
+1. Go to the [Releases](https://github.com/tdwesten/timebird/releases) section.
 2. Download the `.AppImage`, `.deb`, or `.tar.gz` file for Linux.
 3. For `.AppImage`: Make it executable (`chmod +x Timebird-x.x.x.AppImage`) and run it.
 4. For `.deb`: Install with `sudo dpkg -i Timebird-x.x.x.deb`.
@@ -56,7 +56,7 @@ You can download the latest version of Timebird for **macOS**, **Windows**, and 
 ### Setup
 1. Clone the repository:
    ```sh
-   git clone https://github.com/thomasvanderwesten/timebird.git
+   git clone https://github.com/tdwesten/timebird.git
    cd timebird
    ```
 2. Install dependencies:
@@ -75,7 +75,7 @@ npm run tauri build
 
 
 ## About
-Made by [Thomas van der Westen](https://github.com/thomasvanderwesten), Fullstack developer at Codesmiths.
+Made by [Thomas van der Westen](https://github.com/tdwesten), Fullstack developer at Codesmiths.
 
 ## License
 MIT
