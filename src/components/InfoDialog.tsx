@@ -38,7 +38,7 @@ export function InfoDialog() {
               I welcome contributions and feedback from the community via the <a href={"https://github.com/tdwesten/timebird/issues"} className="text-blue-600 underline">Github Issues</a> section or via <a href={`mailto:thomas@codesmiths.nl`} className="text-blue-600 underline">thomas@codesmiths.nl</a> .
             </div>
             <div className="mt-6 text-sm text-gray-600">
-              This app is open source and available on GitHub. You can find the source code at: <a href={"https://github.com/tdwesten/timebird"} className="text-blue-600 underline">Github</a>. <br />
+              This app is <b>Open Source</b> and available on GitHub. You can find the source code at: <a href={"https://github.com/tdwesten/timebird"} className="text-blue-600 underline">Github</a>. <br />
             </div>
 
             <div className="mt-6 text-sm text-gray-600">

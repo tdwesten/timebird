@@ -83,7 +83,9 @@ export function OnboardingDialog() {
             <DialogHeader>
               <DialogTitle>Enter API Token</DialogTitle>
             </DialogHeader>
-            <p className={'text-sm text-gray-500'}>You can create an API token in your Moneybird account settings under Settings &gt; External applications.</p>
+            <p className={'text-sm text-gray-500'}>You can create an API token in your Moneybird account settings under Settings &gt; External applications.
+              Leave all permissions checked except the "Bank" permission.
+            </p>
 
             <Label htmlFor="apiToken">API Token</Label>
             <Input id="apiToken" value={localApiToken} onChange={e => setLocalApiToken(e.target.value)} autoFocus />

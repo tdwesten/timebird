@@ -77,19 +77,19 @@ export function SettingsDialog() {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
+            <Label htmlFor="adminId">Administration ID</Label>
+            <p className={'text-sm text-gray-500'}>You can find your administration ID in the url of your Moneybird administration, e.g. <code>https://moneybird.com/123456789</code>.</p>
+            <Input id="adminId" value={localAdminId} onChange={e => setLocalAdminId(e.target.value)} autoComplete="off" />
+          </div>
+          <div className="grid gap-2">
             <Label htmlFor="apiToken">API Token</Label>
-            <p className={'text-sm text-gray-500'}>You can create an API token in your Moneybird account settings under Settings &gt; External applications.</p>
+            <p className={'text-sm text-gray-500'}>You can create an API token in your Moneybird account settings under Settings &gt; External applications. Leave all permissions checked except the "Bank" permission.</p>
             <div className="flex gap-2 items-center">
               <Input id="apiToken" type={showApiToken ? "text" : "password"} value={localApiToken} onChange={e => setLocalApiToken(e.target.value)} autoComplete="off" />
               <Button type="button" variant="outline" size="sm" onClick={() => setShowApiToken(v => !v)}>
                 {showApiToken ? "Hide" : "Show"}
               </Button>
             </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="adminId">Administration ID</Label>
-            <p className={'text-sm text-gray-500'}>You can find your administration ID in the url of your Moneybird administration, e.g. <code>https://moneybird.com/123456789</code>.</p>
-            <Input id="adminId" value={localAdminId} onChange={e => setLocalAdminId(e.target.value)} autoComplete="off" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="userId">User</Label>
