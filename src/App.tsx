@@ -25,7 +25,7 @@ function App() {
     <div className="flex flex-col h-screen w-screen border-t">
       <main className="py-6 px-4 w-screen flex-1 h-screen bg-gray-100 overflow-y-auto">
         {!useMoneybirdStore.getState().apiToken && <OnboardingDialog />}
-        <div className={'mb-14'}>
+        <div className={'mb-6'}>
           <TimeEntriesTable />
         </div>
         <div className="fixed bottom-0 right-0 z-50 bg-white border-l border-t p-3 rounded-tl-md">
