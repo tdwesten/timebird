@@ -35,7 +35,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   
   // Start the timer
   startTimer: () => {
-    const { isActive, timerInterval } = get();
+    const { isActive } = get();
     
     // Don't start if already active
     if (isActive) return;
