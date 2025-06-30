@@ -40,6 +40,7 @@ export function NewTimeEntryForm() {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [pauseTime, setPauseTime] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDateSelectors, setShowDateSelectors] = useState(false);
@@ -58,6 +59,7 @@ export function NewTimeEntryForm() {
     setProjectName("");
     setStartDate("");
     setEndDate("");
+    setPauseTime("");
     setError(null);
     setBillable(false);
     resetTimer(); // Use timer store's resetTimer function
@@ -172,6 +174,7 @@ export function NewTimeEntryForm() {
         ended_at: endedAt,
         time: "",
         user_id: savedUserId,
+        paused_duration: pauseTime,
         billable,
       } as any;
 
@@ -335,6 +338,7 @@ export function NewTimeEntryForm() {
         </div>
       </div>
       {showDateSelectors && (
+        <>
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="startDate" className="text-sm font-medium">
@@ -363,6 +367,23 @@ export function NewTimeEntryForm() {
             />
           </div>
         </div>
+        <div className="space-y-2 mt-2 transition-opacity duration-300" style={{ opacity: pauseTime ? 0.5 : 1 }}>
+          <Label htmlFor="pauseTime" className="text-sm font-medium">
+            Pause Time (minutes)
+          </Label>
+          <Input
+            id="pauseTime"
+            type="number"
+            min="0"
+            step="1"
+            value={pauseTime}
+            onChange={e => setPauseTime(e.target.value)}
+            placeholder="0"
+            className="w-full"
+            disabled={!isApiConfigured || isSubmitting}
+          />
+        </div>
+        </>
       )}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex items-center space-x-2 mt-2">
@@ -393,7 +414,7 @@ export function NewTimeEntryForm() {
             disabled={!isApiConfigured || isSubmitting}
           />
           <Label htmlFor="showDateSelectors" className="text-sm font-medium text-gray-500">
-            Show date selectors
+            More options
           </Label>
         </div>
         <div className={`flex items-center space-x-2`}>
