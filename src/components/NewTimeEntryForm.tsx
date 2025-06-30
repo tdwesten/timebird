@@ -8,6 +8,7 @@ import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import {Clock2Icon, PlayIcon, StopCircleIcon, Trash2} from "lucide-react";
 
+
 // --- Add types for Contact and Project ---
 interface Contact {
   id: string;
@@ -119,8 +120,23 @@ export function NewTimeEntryForm() {
         setLoadingOptions(false);
       }
     }
+
     loadOptions();
   }, [apiToken, administrationId]);
+
+  // Update start time every minute when timer is not running or when endTime is set manually
+  useEffect(() => {
+    if (!timerActive || endTime) {
+      const interval = setInterval(() => {
+        if (!timerActive || endTime) {
+          const now = new Date();
+          const formatted = now.toTimeString().substring(0, 5);
+          setStartTime(formatted);
+        }
+      }, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [timerActive, endTime, setStartTime]);
 
   // Timer-related useEffect hooks are now handled by the timer store
 

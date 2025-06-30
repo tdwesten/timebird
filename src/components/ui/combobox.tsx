@@ -52,11 +52,13 @@ export const Combobox: React.FC<ComboboxProps> = ({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("justify-between", className)}
+          className={cn("justify-between overflow-hidden", className)}
           id={inputId}
           disabled={disabled}
         >
+          <span className="truncate block max-w-full text-ellipsis overflow-hidden">
           {selected ? selected.label : <span className="text-gray-400">{placeholder}</span>}
+          </span>
           <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -69,7 +71,8 @@ export const Combobox: React.FC<ComboboxProps> = ({
               {options.map((opt) => (
                 <CommandItem
                   key={opt.value}
-                  value={opt.value}
+                  value={opt.label}
+                  keywords={[opt.label, opt.value]}
                   className={'overflow-ellipsis'}
                   onSelect={() => {
                     onChange(opt)

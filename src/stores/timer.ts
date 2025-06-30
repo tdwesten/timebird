@@ -32,7 +32,12 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   })(),
   endTime: null,
   timerInterval: null,
-  
+
+  // update start time every minute
+  setStartTime: (time: string) => {
+    set({ startTime: time });
+  },
+
   // Start the timer
   startTimer: () => {
     const { isActive } = get();
@@ -113,11 +118,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   setEndTime: (time: string | null) => {
     set({ endTime: time });
   },
-  
-  // Set start time
-  setStartTime: (time: string) => {
-    set({ startTime: time });
-  },
+
   
   // Save time entry
   saveTimeEntry: async (entry: Omit<TimeEntry, 'id'>): Promise<boolean> => {
