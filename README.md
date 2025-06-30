@@ -2,6 +2,9 @@
 
 Timebird is a beautiful, native-feeling time tracking app for macOS, built with Tauri, React, and shadcn/ui. It integrates with Moneybird, allowing you to quickly log and manage your time entries directly in your Moneybird administration.
 
+![CleanShot 2025-06-30 at 08 40 54@2x](https://github.com/user-attachments/assets/3a2f2c7d-2ec1-4a61-be1c-ed33d95e4cf7)
+
+
 ## Features
 - Native macOS app (Tauri)
 - Moneybird API integration
