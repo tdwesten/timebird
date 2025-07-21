@@ -10,9 +10,10 @@ interface TimerState {
   startTime: string;
   endTime: string | null;
   timerInterval: NodeJS.Timeout | null;
+  currentEntry: TimeEntry | null;
   
   // Actions
-  startTimer: () => void;
+  startTimer: (entry?: TimeEntry) => void;
   stopTimer: () => void;
   resetTimer: () => void;
   setEndTime: (time: string | null) => void;
@@ -32,6 +33,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   })(),
   endTime: null,
   timerInterval: null,
+  currentEntry: null,
 
   // update start time every minute
   setStartTime: (time: string) => {
@@ -39,7 +41,7 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   },
 
   // Start the timer
-  startTimer: () => {
+  startTimer: (entry?: TimeEntry) => {
     const { isActive } = get();
     
     // Don't start if already active
@@ -60,7 +62,8 @@ export const useTimerStore = create<TimerState>((set, get) => ({
     set({ 
       isActive: true, 
       timerInterval: interval,
-      endTime: null
+      endTime: null,
+      currentEntry: entry || null
     });
   },
   
@@ -110,7 +113,8 @@ export const useTimerStore = create<TimerState>((set, get) => ({
       isActive: false, 
       timerInterval: null,
       startTime: now.toTimeString().substring(0, 5),
-      endTime: null
+      endTime: null,
+      currentEntry: null
     });
   },
   

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useMoneybirdStore } from "@/stores/moneybird";
+import { useTimerStore } from "@/stores/timer";
 import {
   Table,
   TableBody,
@@ -8,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {EuroIcon} from "lucide-react";
+import {EuroIcon, PlayCircleIcon} from "lucide-react";
+import {Button} from "@/components/ui/button.tsx";
+import {TimeEntry} from "@/api/moneybird.ts";
 
 export function TimeEntriesTable() {
   const { 
@@ -19,6 +22,8 @@ export function TimeEntriesTable() {
     apiToken, 
     administrationId 
   } = useMoneybirdStore();
+  
+  const { startTimer } = useTimerStore();
 
   useEffect(() => {
     // Only fetch if we have API credentials
@@ -54,6 +59,13 @@ export function TimeEntriesTable() {
     );
   }
 
+  function restartEvent(entry: TimeEntry) {
+    return () => {
+      console.log(`Restarting timer for entry: ${entry.description}`);
+      startTimer(entry);
+    };
+  }
+
   return (
     <div className="rounded-md border bg-white">
       <Table className={` `}>
@@ -75,7 +87,7 @@ export function TimeEntriesTable() {
                     </a>
                   </div>
                   <div className={'flex gap-2 text-sm text-gray-500'}>
-                    {entry.contact.company_name} / {entry.project.name}
+                    {entry.contact.company_name} / {entry.project.name} / <Button variant={ "link"} size={"sm"} className={`flex gap-1 items-center justify-center p-0 m-0 h-auto -mt-0.5 no-underline text-gray-500 hover:text-primary`} onClick={restartEvent(entry)}><PlayCircleIcon className={"w-4"} /> Continue</Button>
                   </div>
                 </div>
               </TableCell>

@@ -64,6 +64,10 @@ export const useMoneybirdStore = create<MoneybirdState>((set, get) => ({
 
       // If we have both API token and administration ID, fetch time entries
       if (apiToken && administrationId) {
+
+        setInterval(async () => {
+          get().fetchTimeEntries();
+        }, 1000 * 60 * 5); // Fetch every 5 minutes
         get().fetchTimeEntries();
       }
     } catch (error) {

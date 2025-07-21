@@ -30,7 +30,8 @@ export function NewTimeEntryForm() {
     resetTimer, 
     setStartTime, 
     setEndTime, 
-    saveTimeEntry 
+    saveTimeEntry,
+    currentEntry
   } = useTimerStore();
 
   const [description, setDescription] = useState("");
@@ -139,6 +140,27 @@ export function NewTimeEntryForm() {
   }, [timerActive, endTime, setStartTime]);
 
   // Timer-related useEffect hooks are now handled by the timer store
+  
+  // Populate form fields when currentEntry changes
+  useEffect(() => {
+    if (currentEntry) {
+      setDescription(currentEntry.description);
+      
+      if (currentEntry.contact) {
+        setContactId(currentEntry.contact.id);
+        setContactName(currentEntry.contact.company_name);
+      }
+      
+      if (currentEntry.project) {
+        setProjectId(currentEntry.project.id);
+        setProjectName(currentEntry.project.name);
+      }
+      
+      if (currentEntry.billable !== undefined) {
+        setBillable(currentEntry.billable);
+      }
+    }
+  }, [currentEntry]);
 
   const handleTimerClick = async () => {
     if (!timerActive) {
