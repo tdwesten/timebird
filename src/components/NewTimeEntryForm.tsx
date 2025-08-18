@@ -7,7 +7,7 @@ import { TimeEntry, fetchContacts, fetchProjects } from "@/api/moneybird";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import {Clock2Icon, PlayIcon, StopCircleIcon, Trash2} from "lucide-react";
-
+import { useTranslation } from "react-i18next";
 
 // --- Add types for Contact and Project ---
 interface Contact {
@@ -33,6 +33,9 @@ export function NewTimeEntryForm() {
     saveTimeEntry,
     currentEntry
   } = useTimerStore();
+
+  const { t } = useTranslation();
+
 
   const [description, setDescription] = useState("");
   const [contactId, setContactId] = useState("");
@@ -72,27 +75,27 @@ export function NewTimeEntryForm() {
 
     // Additional validations specific to form submission
     if (!description) {
-      setError("Description is required");
+      setError(t('newEntry.validation.descriptionRequired'));
       return;
     }
 
     if (!contactId || !contactName) {
-      setError("Contact information is required");
+      setError(t('newEntry.validation.contactRequired'));
       return;
     }
 
     if (!projectId || !projectName) {
-      setError("Project information is required");
+      setError(t('newEntry.validation.projectRequired'));
       return;
     }
 
     if (!startTime || !endTime) {
-      setError("Start and end times are required");
+      setError(t('newEntry.validation.timeRequired'));
       return;
     }
 
     if (showDateSelectors && (!startDate || !endDate)) {
-      setError("Start and end dates are required when date selectors are shown");
+      setError(t('newEntry.validation.datesRequired'));
       return;
     }
 
@@ -176,7 +179,7 @@ export function NewTimeEntryForm() {
   const handleSaveEntry = async () => {
     // Validate form
     if (!description || !contactId || !contactName || !projectId || !projectName || !startTime) {
-      setError("All fields are required");
+      setError(t('newEntry.validation.allFieldsRequired'));
       return false;
     }
 
@@ -223,12 +226,12 @@ export function NewTimeEntryForm() {
         resetForm();
         return true;
       } else {
-        setError("Failed to create time entry. Please try again.");
+        setError(t('newEntry.validation.failedCreate'));
         return false;
       }
     } catch (err) {
       console.error("Failed to create time entry:", err);
-      setError("Failed to create time entry. Please try again.");
+      setError(t('newEntry.validation.failedCreate'));
       return false;
     } finally {
       setIsSubmitting(false);
@@ -262,7 +265,7 @@ export function NewTimeEntryForm() {
 
       {!isApiConfigured && (
         <div className="bg-amber-100 border border-amber-400 text-amber-700 px-4 py-3 rounded mb-4">
-          Please configure your Moneybird API token and administration ID in the settings.
+          {t('newEntry.alerts.noApiMessage')}
         </div>
       )}
 
@@ -274,13 +277,13 @@ export function NewTimeEntryForm() {
 
       <div className="space-y-2">
         <Label htmlFor="description" className="text-sm font-medium">
-          Description
+          {t('newEntry.labels.description')}
         </Label>
         <Input
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="What did you work on?"
+          placeholder={t('newEntry.placeholders.description')}
           disabled={!isApiConfigured || isSubmitting}
           autoFocus={true}
           tabIndex={0}
@@ -290,7 +293,7 @@ export function NewTimeEntryForm() {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2 relative">
           <Label htmlFor="contactId" className="text-sm font-medium">
-            Contact
+            {t('newEntry.labels.contact')}
           </Label>
           <Combobox
             options={contacts.map((c) => ({ value: c.id, label: c.company_name }))}
@@ -299,7 +302,7 @@ export function NewTimeEntryForm() {
               setContactId(opt.value);
               setContactName(opt.label);
             }}
-            placeholder={loadingOptions ? "Loading..." : "Select contact"}
+            placeholder={loadingOptions ? t('newEntry.placeholders.loading') : t('newEntry.placeholders.selectContact')}
             disabled={!isApiConfigured || isSubmitting || loadingOptions}
             inputId="contactId"
             className="w-full"
@@ -307,7 +310,7 @@ export function NewTimeEntryForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="projectId" className="text-sm font-medium">
-            Project
+            {t('newEntry.labels.project')}
           </Label>
           <Combobox
             options={projects.map((p) => ({ value: p.id, label: p.name }))}
@@ -316,7 +319,7 @@ export function NewTimeEntryForm() {
               setProjectId(opt.value);
               setProjectName(opt.label);
             }}
-            placeholder={loadingOptions ? "Loading..." : "Select project"}
+            placeholder={loadingOptions ? t('newEntry.placeholders.loading') : t('newEntry.placeholders.selectProject')}
             disabled={!isApiConfigured || isSubmitting || loadingOptions}
             inputId="projectId"
             className="w-full"
@@ -327,7 +330,7 @@ export function NewTimeEntryForm() {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2 relative">
           <Label htmlFor="startTime" className="text-sm font-medium">
-            Start Time
+            {t('newEntry.labels.startTime')}
           </Label>
           <div className="relative">
             <Input
@@ -336,7 +339,7 @@ export function NewTimeEntryForm() {
               value={startTime}
               onChange={(e) => setStartTime(formatTimeInput(e.target.value))}
               disabled={!isApiConfigured || isSubmitting || timerActive}
-              placeholder="00:00"
+              placeholder={t('newEntry.placeholders.time')}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <Clock2Icon className={`w-5 h-5 text-gray-400`} />
@@ -345,7 +348,7 @@ export function NewTimeEntryForm() {
         </div>
         <div className="space-y-2 relative">
           <Label htmlFor="endTime" className="text-sm font-medium">
-            End Time
+            {t('newEntry.labels.endTime')}
           </Label>
           <div className="relative">
             <Input
@@ -354,7 +357,7 @@ export function NewTimeEntryForm() {
               value={endTime ?? ""}
               onChange={(e) => setEndTime(formatTimeInput(e.target.value))}
               disabled={!isApiConfigured || isSubmitting || timerActive}
-              placeholder={timerActive ? "Running..." : "00:00"}
+              placeholder={timerActive ? t('newEntry.placeholders.running') : t('newEntry.placeholders.time')}
             />
             <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <Clock2Icon className={`w-5 h-5 text-gray-400`} />
@@ -367,7 +370,7 @@ export function NewTimeEntryForm() {
                 onClick={() => setEndTime(null)}
                 className="absolute right-8 top-1/2 -translate-y-1/2 p-1"
                 tabIndex={-1}
-                title="Clear end time"
+                title={t('newEntry.titles.clearEndTime')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </Button>
@@ -380,7 +383,7 @@ export function NewTimeEntryForm() {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="startDate" className="text-sm font-medium">
-              Start Date
+              {t('newEntry.labels.startDate')}
             </Label>
             <Input
               id="startDate"
@@ -393,7 +396,7 @@ export function NewTimeEntryForm() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="endDate" className="text-sm font-medium">
-              End Date
+              {t('newEntry.labels.endDate')}
             </Label>
             <Input
               id="endDate"
@@ -407,7 +410,7 @@ export function NewTimeEntryForm() {
         </div>
         <div className="space-y-2 mt-2 transition-opacity duration-300" style={{ opacity: pauseTime ? 0.5 : 1 }}>
           <Label htmlFor="pauseTime" className="text-sm font-medium">
-            Pause Time (minutes)
+            {t('newEntry.labels.pauseTime')}
           </Label>
           <Input
             id="pauseTime"
@@ -416,7 +419,7 @@ export function NewTimeEntryForm() {
             step="1"
             value={pauseTime}
             onChange={e => setPauseTime(e.target.value)}
-            placeholder="0"
+            placeholder={t('newEntry.placeholders.zero')}
             className="w-full"
             disabled={!isApiConfigured || isSubmitting}
           />
@@ -434,7 +437,7 @@ export function NewTimeEntryForm() {
             disabled={!isApiConfigured || isSubmitting}
           />
           <Label htmlFor="billable" className="text-sm font-medium">
-            Billable
+            {t('newEntry.labels.billable')}
           </Label>
         </div>
       </div>
@@ -452,7 +455,7 @@ export function NewTimeEntryForm() {
             disabled={!isApiConfigured || isSubmitting}
           />
           <Label htmlFor="showDateSelectors" className="text-sm font-medium text-gray-500">
-            More options
+            {t('newEntry.labels.moreOptions')}
           </Label>
         </div>
         <div className={`flex items-center space-x-2`}>
@@ -464,7 +467,7 @@ export function NewTimeEntryForm() {
                 onClick={resetForm}
                 disabled={isSubmitting}
                 className="flex items-center justify-center"
-                title="Reset form"
+                title={t('newEntry.titles.resetForm')}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -474,7 +477,7 @@ export function NewTimeEntryForm() {
                 disabled={!isApiConfigured || isSubmitting}
                 className="bg-green-500 hover:bg-green-600 text-white"
               >
-                Save
+                {t('newEntry.actions.save')}
               </Button>
             </>
           ) : (
@@ -485,7 +488,7 @@ export function NewTimeEntryForm() {
                 onClick={resetForm}
                 disabled={isSubmitting}
                 className="flex items-center justify-center"
-                title="Reset form"
+                title={t('newEntry.titles.resetForm')}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -498,12 +501,12 @@ export function NewTimeEntryForm() {
                 {!timerActive ? (
                   <>
                     <PlayIcon className={`h-4 -ml-1.5`} />
-                    Start timer
+                    {t('newEntry.actions.startTimer')}
                   </>
                   ) : (
                     <>
                       <StopCircleIcon className={`h-4 -ml-1.5`} />
-                      Stop timer
+                      {t('newEntry.actions.stopTimer')}
                     </>
                   )
                 }

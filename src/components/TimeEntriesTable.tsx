@@ -12,8 +12,10 @@ import {
 import {EuroIcon, PlayCircleIcon} from "lucide-react";
 import {Button} from "@/components/ui/button.tsx";
 import {TimeEntry} from "@/api/moneybird.ts";
+import { useTranslation } from "react-i18next";
 
 export function TimeEntriesTable() {
+  const { t } = useTranslation();
   const { 
     timeEntries, 
     isLoading, 
@@ -33,7 +35,7 @@ export function TimeEntriesTable() {
   }, [fetchTimeEntries, apiToken, administrationId]);
 
   if (isLoading) {
-    return <div className="py-10 text-center">Loading time entries...</div>;
+    return <div className="py-10 text-center">{t('timeEntries.loading')}</div>;
   }
 
   if (error) {
@@ -43,10 +45,8 @@ export function TimeEntriesTable() {
   if (!apiToken || !administrationId) {
     return (
       <div className="py-10 text-center">
-        <p className="text-amber-600 mb-2">API not configured</p>
-        <p className="text-gray-600">
-          Please configure your Moneybird API token and administration ID in the settings.
-        </p>
+        <p className="text-amber-600 mb-2">{t('timeEntries.noApiTitle')}</p>
+        <p className="text-gray-600">{t('timeEntries.noApiMessage')}</p>
       </div>
     );
   }
@@ -54,7 +54,7 @@ export function TimeEntriesTable() {
   if (timeEntries.length === 0) {
     return (
       <div className="py-10 text-center text-gray-600">
-        No time entries found... Time to get tracking!
+        {t('timeEntries.empty')}
       </div>
     );
   }
@@ -71,8 +71,8 @@ export function TimeEntriesTable() {
       <Table className={` `}>
         <TableHeader>
           <TableRow>
-            <TableHead>Description</TableHead>
-            <TableHead>Time</TableHead>
+            <TableHead>{t('timeEntries.headers.description')}</TableHead>
+            <TableHead>{t('timeEntries.headers.time')}</TableHead>
             <TableHead><EuroIcon className={`w-4`}/></TableHead>
           </TableRow>
         </TableHeader>
@@ -87,7 +87,7 @@ export function TimeEntriesTable() {
                     </a>
                   </div>
                   <div className={'flex gap-2 text-sm text-gray-500'}>
-                    {entry.contact.company_name} / {entry.project.name} / <Button variant={ "link"} size={"sm"} className={`flex gap-1 items-center justify-center p-0 m-0 h-auto -mt-0.5 no-underline text-gray-500 hover:text-primary`} onClick={restartEvent(entry)}><PlayCircleIcon className={"w-4"} /> Continue</Button>
+                    {entry.contact.company_name} / {entry.project.name} / <Button variant={ "link"} size={"sm"} className={`flex gap-1 items-center justify-center p-0 m-0 h-auto -mt-0.5 no-underline text-gray-500 hover:text-primary`} onClick={restartEvent(entry)}><PlayCircleIcon className={"w-4"} /> {t('timeEntries.continue')}</Button>
                   </div>
                 </div>
               </TableCell>
