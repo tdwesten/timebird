@@ -19,11 +19,11 @@ function App() {
 
   return (<div className="flex flex-col border-t h-screen w-screen bg-gray-50 overflow-y-scroll">
       <div className={`p-4`}>
-        <h2 className="text-lg font-semibold mb-4">New Time Entry</h2>
+        {/*<h2 className="text-lg font-semibold mb-4">New Time Entry</h2>*/}
         <NewTimeEntryForm />
       </div>
     <div className="flex flex-col h-screen w-screen border-t">
-      <main className="py-6 px-4 w-screen flex-1 h-screen bg-gray-100 overflow-y-auto">
+      <main className="py-6 px-4 w-screen flex-1 h-screen bg-gray-100">
         {!useMoneybirdStore.getState().apiToken && <OnboardingDialog />}
         <div className={'mb-6'}>
           <TimeEntriesTable />
