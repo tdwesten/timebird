@@ -1,0 +1,111 @@
+{
+  "common": {
+    "appName": "Timebird",
+    "save": "Save",
+    "reset": "Reset",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "show": "Show",
+    "hide": "Hide",
+    "loading": "Loading..."
+  },
+  "timeEntries": {
+    "loading": "Loading time entries...",
+    "noApiTitle": "API not configured",
+    "noApiMessage": "Please configure your Moneybird API token and administration ID in the settings.",
+    "empty": "No time entries found... Time to get tracking!",
+    "headers": {
+      "description": "Description",
+      "time": "Time"
+    },
+    "continue": "Continue"
+  },
+  "newEntry": {
+    "alerts": {
+      "noApiMessage": "Please configure your Moneybird API token and administration ID in the settings."
+    },
+    "validation": {
+      "descriptionRequired": "Description is required",
+      "contactRequired": "Contact information is required",
+      "projectRequired": "Project information is required",
+      "timeRequired": "Start and end times are required",
+      "datesRequired": "Start and end dates are required when date selectors are shown",
+      "allFieldsRequired": "All fields are required",
+      "failedCreate": "Failed to create time entry. Please try again."
+    },
+    "labels": {
+      "description": "Description",
+      "contact": "Contact",
+      "project": "Project",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "pauseTime": "Pause Time (minutes)",
+      "billable": "Billable",
+      "moreOptions": "More options"
+    },
+    "placeholders": {
+      "description": "What did you work on?",
+      "selectContact": "Select contact",
+      "selectProject": "Select project",
+      "loading": "Loading...",
+      "time": "00:00",
+      "running": "Running...",
+      "zero": "0"
+    },
+    "titles": {
+      "clearEndTime": "Clear end time",
+      "resetForm": "Reset form"
+    },
+    "actions": {
+      "startTimer": "Start timer",
+      "stopTimer": "Stop timer",
+      "save": "Save"
+    }
+  },
+  "settings": {
+    "title": "Moneybird Settings",
+    "intro1": "Configure your Moneybird API settings to enable integration with your Moneybird account.",
+    "intro2": "Please ensure you have the correct API token, administration ID and select the user you want to associate with you timetracking data.",
+    "adminId": "Administration ID",
+    "adminIdHelp": "You can find your administration ID in the url of your Moneybird administration, e.g. https://moneybird.com/123456789.",
+    "apiToken": "API Token",
+    "apiTokenHelp": "You can create an API token in your Moneybird account settings under Settings > External applications. Leave all permissions checked except the \"Bank\" permission.",
+    "user": "User",
+    "userHelp": "Select the user you want to associate with your timetracking data.",
+    "loadingUsers": "Loading users...",
+    "selectUser": "Select user",
+    "language": "Language",
+    "language_en": "English",
+    "language_nl": "Dutch"
+  },
+  "onboarding": {
+    "welcomeTitle": "Welcome to Timebird",
+    "welcomeText": "Timebird is a Moneybird time tracking app.",
+    "getStarted": "Get started",
+    "adminTitle": "Enter Administration ID",
+    "adminLabel": "Administration ID",
+    "adminHelp": "You can find your administration ID in the url of your Moneybird administration, e.g. https://moneybird.com/123456789.",
+    "tokenTitle": "Enter API Token",
+    "tokenHelp": "You can create an API token in your Moneybird account settings under Settings > External applications. Leave all permissions checked except the \"Bank\" permission.",
+    "tokenLabel": "API Token",
+    "userTitle": "Select User",
+    "userHelp": "Select the user you want to associate with your timetracking data.",
+    "loadingUsers": "Loading users...",
+    "selectUser": "Select user",
+    "finishedTitle": "All set!",
+    "finishedText": "You're ready to use Timebird 🎉"
+  },
+  "info": {
+    "title": "About the Maker",
+    "aria": "Info",
+    "makerName": "Thomas van der Westen",
+    "roleAt": "Fullstack developer @ {{company}}",
+    "viewGithub": "View my GitHub profile",
+    "contributions": "I welcome contributions and feedback from the community via the {{issues}} section or via {{email}}.",
+    "oss": "This app is Open Source and available on GitHub. You can find the source code at: {{repo}}.",
+    "disclaimer": "This app has no affiliation with Moneybird. It is a personal project created to help users manage their time entries more effectively."
+  }
+}

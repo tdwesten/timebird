@@ -1,0 +1,111 @@
+{
+  "common": {
+    "appName": "Timebird",
+    "save": "Opslaan",
+    "reset": "Resetten",
+    "back": "Terug",
+    "next": "Volgende",
+    "finish": "Afronden",
+    "show": "Tonen",
+    "hide": "Verbergen",
+    "loading": "Laden..."
+  },
+  "timeEntries": {
+    "loading": "Tijdregistraties laden...",
+    "noApiTitle": "API niet geconfigureerd",
+    "noApiMessage": "Configureer je Moneybird API-token en administratie-ID in de instellingen.",
+    "empty": "Geen tijdregistraties gevonden... Tijd om te gaan tracken!",
+    "headers": {
+      "description": "Omschrijving",
+      "time": "Tijd"
+    },
+    "continue": "Doorgaan"
+  },
+  "newEntry": {
+    "alerts": {
+      "noApiMessage": "Configureer je Moneybird API-token en administratie-ID in de instellingen."
+    },
+    "validation": {
+      "descriptionRequired": "Omschrijving is verplicht",
+      "contactRequired": "Contactgegevens zijn verplicht",
+      "projectRequired": "Projectgegevens zijn verplicht",
+      "timeRequired": "Begin- en eindtijd zijn verplicht",
+      "datesRequired": "Begin- en einddatum zijn verplicht wanneer datumselectie is ingeschakeld",
+      "allFieldsRequired": "Alle velden zijn verplicht",
+      "failedCreate": "Aanmaken mislukt. Probeer het opnieuw."
+    },
+    "labels": {
+      "description": "Omschrijving",
+      "contact": "Contact",
+      "project": "Project",
+      "startTime": "Begintijd",
+      "endTime": "Eindtijd",
+      "startDate": "Begindatum",
+      "endDate": "Einddatum",
+      "pauseTime": "Pauzetijd (minuten)",
+      "billable": "Factureerbaar",
+      "moreOptions": "Meer opties"
+    },
+    "placeholders": {
+      "description": "Waar heb je aan gewerkt?",
+      "selectContact": "Selecteer contact",
+      "selectProject": "Selecteer project",
+      "loading": "Laden...",
+      "time": "00:00",
+      "running": "Bezig...",
+      "zero": "0"
+    },
+    "titles": {
+      "clearEndTime": "Eindtijd wissen",
+      "resetForm": "Formulier resetten"
+    },
+    "actions": {
+      "startTimer": "Timer starten",
+      "stopTimer": "Timer stoppen",
+      "save": "Opslaan"
+    }
+  },
+  "settings": {
+    "title": "Moneybird-instellingen",
+    "intro1": "Configureer je Moneybird API-instellingen om integratie met je Moneybird-account in te schakelen.",
+    "intro2": "Zorg dat je het juiste API-token en administratie-ID hebt en selecteer de gebruiker die je wilt koppelen aan je tijdregistraties.",
+    "adminId": "Administratie-ID",
+    "adminIdHelp": "Je vindt je administratie-ID in de URL van je Moneybird-administratie, bijv. https://moneybird.com/123456789.",
+    "apiToken": "API-token",
+    "apiTokenHelp": "Je kunt een API-token aanmaken via Instellingen > Externe applicaties. Laat alle rechten aan staan behalve \"Bank\".",
+    "user": "Gebruiker",
+    "userHelp": "Selecteer de gebruiker die je wilt koppelen aan je tijdregistraties.",
+    "loadingUsers": "Gebruikers laden...",
+    "selectUser": "Selecteer gebruiker",
+    "language": "Taal",
+    "language_en": "Engels",
+    "language_nl": "Nederlands"
+  },
+  "onboarding": {
+    "welcomeTitle": "Welkom bij Timebird",
+    "welcomeText": "Timebird is een Moneybird-tijdregistratie app.",
+    "getStarted": "Aan de slag",
+    "adminTitle": "Voer Administratie-ID in",
+    "adminLabel": "Administratie-ID",
+    "adminHelp": "Je vindt je administratie-ID in de URL van je Moneybird-administratie, bijv. https://moneybird.com/123456789.",
+    "tokenTitle": "Voer API-token in",
+    "tokenHelp": "Je kunt een API-token aanmaken via Instellingen > Externe applicaties. Laat alle rechten aan staan behalve \"Bank\".",
+    "tokenLabel": "API-token",
+    "userTitle": "Selecteer gebruiker",
+    "userHelp": "Selecteer de gebruiker die je wilt koppelen aan je tijdregistraties.",
+    "loadingUsers": "Gebruikers laden...",
+    "selectUser": "Selecteer gebruiker",
+    "finishedTitle": "Alles klaar! ",
+    "finishedText": "Je kunt Timebird gebruiken 🎉"
+  },
+  "info": {
+    "title": "Over de maker",
+    "aria": "Informatie",
+    "makerName": "Thomas van der Westen",
+    "roleAt": "Fullstack developer @ {{company}}",
+    "viewGithub": "Bekijk mijn GitHub-profiel",
+    "contributions": "Ik ontvang graag bijdragen en feedback via de {{issues}} sectie of via {{email}}.",
+    "oss": "Deze app is Open Source en beschikbaar op GitHub. Je vindt de broncode op: {{repo}}.",
+    "disclaimer": "Deze app is niet verbonden aan Moneybird. Het is een persoonlijk project om gebruikers te helpen hun tijdregistraties te beheren."
+  }
+}
