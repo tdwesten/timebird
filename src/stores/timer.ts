@@ -35,8 +35,10 @@ export const useTimerStore = create<TimerState>((set, get) => ({
   timerInterval: null,
   currentEntry: null,
 
-  // update start time every minute
+  // update start time (ignored while timer is active to avoid unintended resets)
   setStartTime: (time: string) => {
+    const { isActive } = get();
+    if (isActive) return;
     set({ startTime: time });
   },
 
